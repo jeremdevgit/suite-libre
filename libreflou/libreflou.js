@@ -4,13 +4,13 @@
   const cv = $("cv"), ctx = cv.getContext("2d");
   const PREF = "libreflou-reglages-v1";
   const P = Object.assign({ tool: "rect", effect: "flou", strength: 60, color: "#111111", brush: 48, outlines: true, fmt: "image/png" }, loadPref(PREF, {}));
-  const EFFETS = { flou: "Flou", pixels: "Pixels", masque: "Masque" };
-  const FORMES = { rect: "Rectangle", ellipse: "Ellipse", brush: "Pinceau" };
+  const EFFETS = { flou: trad("Flou"), pixels: trad("Pixels"), masque: trad("Masque") };
+  const FORMES = { rect: trad("Rectangle"), ellipse: trad("Ellipse"), brush: trad("Pinceau") };
   const AIDE = {
-    rect: "Fais glisser sur l’image pour couvrir la zone. Touche une zone existante pour la sélectionner.",
-    ellipse: "Fais glisser sur l’image : pratique pour un visage. Touche une zone existante pour la sélectionner.",
-    brush: "Passe le pinceau sur ce qu’il faut cacher, comme une ligne de texte.",
-    select: "Touche une zone pour la sélectionner, fais-la glisser pour la déplacer, tire ses coins pour la redimensionner.",
+    rect: trad("Fais glisser sur l’image pour couvrir la zone. Touche une zone existante pour la sélectionner."),
+    ellipse: trad("Fais glisser sur l’image : pratique pour un visage. Touche une zone existante pour la sélectionner."),
+    brush: trad("Passe le pinceau sur ce qu’il faut cacher, comme une ligne de texte."),
+    select: trad("Touche une zone pour la sélectionner, fais-la glisser pour la déplacer, tire ses coins pour la redimensionner."),
   };
   const savePrefs = () => savePref(PREF, P);
 
@@ -270,7 +270,7 @@
     $("brush").value = P.brush; $("brush-o").textContent = P.brush + " px";
     $("tool-hint").textContent = AIDE[P.tool];
     const z = current(), e = z || P;
-    $("effect-title").textContent = z ? "Effet de la zone sélectionnée" : "Effet";
+    $("effect-title").textContent = z ? trad("Effet de la zone sélectionnée") : trad("Effet");
     document.querySelectorAll("#effects .tab").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.effect === e.effect)));
     $("strength").value = e.strength; $("strength-o").textContent = e.strength + " %";
     $("strength-row").hidden = e.effect === "masque";
@@ -285,8 +285,8 @@
       n[z.shape] = (n[z.shape] || 0) + 1;
       const fx = EFFETS[z.effect] + (z.effect === "masque" ? "" : " " + z.strength + " %");
       return `<div class="zitem" data-id="${z.id}" aria-current="${z.id === sel}"><button class="zname">${FORMES[z.shape]} ${n[z.shape]} <small>· ${esc(fx)}</small></button>
-        <button class="iconbtn" data-del aria-label="Supprimer cette zone" title="Supprimer">×</button></div>`;
-    }).join("") : '<div class="empty">Aucune zone. Dessine sur l’image ce qu’il faut cacher.</div>';
+        <button class="iconbtn" data-del aria-label="${trad("Supprimer cette zone")}" title="${trad("Supprimer")}">×</button></div>`;
+    }).join("") : '<div class="empty">' + trad("Aucune zone. Dessine sur l’image ce qu’il faut cacher.") + "</div>";
     const ok = !!src;
     ["dl", "copy"].forEach((id) => ($(id).disabled = !ok));
   }
@@ -309,7 +309,7 @@
     if (e.target.closest("[data-del]")) { remove(id); return; }
     sel = sel === id ? null : id; draw(); syncPanel();
   });
-  $("clear-all").addEventListener("click", () => { zones = []; sel = null; commit(); draw(); syncPanel(); toast("Toutes les zones ont été retirées."); });
+  $("clear-all").addEventListener("click", () => { zones = []; sel = null; commit(); draw(); syncPanel(); toast(trad("Toutes les zones ont été retirées.")); });
   $("undo").addEventListener("click", undo);
   $("redo").addEventListener("click", redo);
   document.addEventListener("keydown", (e) => {
@@ -337,7 +337,7 @@
   async function openFile(file) {
     if (!file) return;
     const heic = /\.(heic|heif)$/i.test(file.name || "") || /hei[cf]/.test(file.type);
-    if (!file.type.startsWith("image/") && !heic) { toast("Ce fichier n’est pas une image."); return; }
+    if (!file.type.startsWith("image/") && !heic) { toast(trad("Ce fichier n’est pas une image.")); return; }
     const url = URL.createObjectURL(file);
     try {
       const i = await loadImg(url);
@@ -347,7 +347,7 @@
       resetHistory();
     } catch (e) {
       URL.revokeObjectURL(url);
-      const msg = heic ? "Ce navigateur ne sait pas lire le HEIC. Ouvre LibreFlou dans Safari, ou règle l’iPhone sur « Le plus compatible » (Réglages › Appareil photo › Formats)." : "Ce fichier n’a pas pu être lu comme une image.";
+      const msg = heic ? trad("Ce navigateur ne sait pas lire le HEIC. Ouvre LibreFlou dans Safari, ou règle l’iPhone sur « Le plus compatible » (Réglages › Appareil photo › Formats).") : trad("Ce fichier n’a pas pu être lu comme une image.");
       if (src) { $("err").textContent = msg; $("err").hidden = false; } else toast(msg);
     }
   }
@@ -368,18 +368,18 @@
   const toBlob = (c, type) => new Promise((ok) => c.toBlob(ok, type, 0.92));
   $("dl").addEventListener("click", async () => {
     if (!src) return;
-    if (!canSave()) { toast("Le téléchargement n’est pas disponible ici : utilise Copier l’image."); return; }
+    if (!canSave()) { toast(trad("Le téléchargement n’est pas disponible ici : utilise Copier l’image.")); return; }
     const blob = await toBlob(render(), P.fmt);
-    if (!blob) { toast("L’image n’a pas pu être créée."); return; }
-    const fname = name.replace(/\.[^.]+$/, "") + "-floute." + (EXT[blob.type] || "png");
-    try { const s = await saveFile(fname, blob); if (s === "saved") toast("Image enregistrée."); } catch (err) { toast(saveErrorText(err)); }
+    if (!blob) { toast(trad("L’image n’a pas pu être créée.")); return; }
+    const fname = name.replace(/\.[^.]+$/, "") + "-" + trad("floute") + "." + (EXT[blob.type] || "png");
+    try { const s = await saveFile(fname, blob); if (s === "saved") toast(trad("Image enregistrée.")); } catch (err) { toast(saveErrorText(err)); }
   });
   $("copy").addEventListener("click", async () => {
     if (!src) return;
     try {
       await navigator.clipboard.write([new ClipboardItem({ "image/png": toBlob(render(), "image/png") })]);
-      toast("Image copiée dans le presse-papiers.");
-    } catch (e) { toast("La copie d’image est bloquée par ce navigateur : utilise Télécharger."); }
+      toast(trad("Image copiée dans le presse-papiers."));
+    } catch (e) { toast(trad("La copie d’image est bloquée par ce navigateur : utilise Télécharger.")); }
   });
   onSaveReady(syncPanel);
 
@@ -408,15 +408,15 @@
     g.save(); g.translate(1130, 300); g.rotate(-0.06);
     g.fillStyle = "#fffdf8"; g.shadowColor = "rgba(0,0,0,.25)"; g.shadowBlur = 30; g.beginPath(); g.roundRect(0, 0, 400, 250, 22); g.fill(); g.shadowBlur = 0;
     g.fillStyle = "#0a84ff"; g.beginPath(); g.roundRect(0, 0, 400, 56, [22, 22, 0, 0]); g.fill();
-    g.fillStyle = "#fff"; g.font = F(700, 24); g.textAlign = "left"; g.fillText("CARTE DE MEMBRE", 24, 29);
+    g.fillStyle = "#fff"; g.font = F(700, 24); g.textAlign = "left"; g.fillText(trad("CARTE DE MEMBRE"), 24, 29);
     g.fillStyle = "#222"; g.font = F(600, 26); g.fillText("Camille Durand", 24, 104);
-    g.font = F(400, 22); g.fillStyle = "#555"; g.fillText("12 rue des Exemples", 24, 146); g.fillText("N° 0123 4567 8910", 24, 188);
+    g.font = F(400, 22); g.fillStyle = "#555"; g.fillText(trad("12 rue des Exemples"), 24, 146); g.fillText("N° 0123 4567 8910", 24, 188);
     g.restore();
     c.toBlob((b) => {
       if (src || !b) return;
       loadImg(URL.createObjectURL(b)).then((img) => {
         if (src) return;
-        setImage(img, w, h, "exemple.png", true);
+        setImage(img, w, h, trad("exemple") + ".png", true);
         zones = [
           { id: ++uid, shape: "ellipse", effect: "flou", strength: 70, color: P.color, x: 820, y: 300, w: 240, h: 240 },
           { id: ++uid, shape: "rect", effect: "pixels", strength: 45, color: P.color, x: 262, y: 642, w: 276, h: 80 },

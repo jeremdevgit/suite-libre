@@ -247,6 +247,11 @@ details.more > div { display: flex; flex-direction: column; gap: 14px; margin-to
 .credit a { color: inherit; font-weight: 600; }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .glass { background: var(--glass-strong); } }
 </style>
+<style>
+/* Menu des langues */
+.langues { margin-left: auto; }
+.langue { font: 600 13px/1 var(--f-body); color: var(--ink); background: var(--glass-field); border: 1px solid var(--glass-edge-low); border-radius: 999px; padding: 8px 12px; cursor: pointer; box-shadow: inset 0 1px 2px var(--glass-shadow); }
+</style>
 <style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
 </head>
 <body>
@@ -256,8 +261,9 @@ details.more > div { display: flex; flex-direction: column; gap: 14px; margin-to
 <div class="aura" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 <div class="wrap">
   <header class="top glass">
-    <div class="brand"><span class="drop-mark" aria-hidden="true"></span><h1>Libre<b>RR</b></h1></div>
+    <div class="brand"><span class="drop-mark" aria-hidden="true"></span><h1 data-brut>Libre<b>RR</b></h1></div>
     <p class="lede">Choisis le contenu, règle le style, puis exporte ton code.</p>
+    <span class="langues" data-langues></span>
   </header>
 
   <div class="grid">
@@ -482,6 +488,8 @@ Merci d’avance.</textarea></label>
 </div>
 
 <script src="qr-code-styling.js"></script>
+<script src="textes.js"></script>
+<script src="langue.js"></script>
 <script src="librerr.js"></script>
 
 </body>

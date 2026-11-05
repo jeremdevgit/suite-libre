@@ -78,17 +78,17 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 
   // ---------- Style ----------
   const DOTS = [
-    ["square", "Carrés", '<rect x="3" y="3" width="11" height="11"/><rect x="16" y="3" width="11" height="11"/><rect x="3" y="16" width="11" height="11"/>'],
-    ["dots", "Ronds", '<circle cx="8.5" cy="8.5" r="5.5"/><circle cx="21.5" cy="8.5" r="5.5"/><circle cx="8.5" cy="21.5" r="5.5"/>'],
-    ["rounded", "Arrondis", '<rect x="3" y="3" width="24" height="11" rx="5.5"/><rect x="3" y="16" width="11" height="11" rx="5.5"/>'],
-    ["extra-rounded", "Très arrondis", '<rect x="3" y="3" width="24" height="11" rx="5.5"/><circle cx="8.5" cy="21.5" r="5.5"/>'],
-    ["classy", "Élégants", '<path d="M3 3h11v11H8.5A5.5 5.5 0 0 1 3 8.5zM16 16h11v5.5a5.5 5.5 0 0 1-5.5 5.5H16z"/>'],
-    ["classy-rounded", "Élégants ronds", '<path d="M3 8.5A5.5 5.5 0 0 1 8.5 3H14v11H3zM16 16h11v5.5a5.5 5.5 0 0 1-5.5 5.5H16z"/>'],
+    ["square", trad("Carrés"), '<rect x="3" y="3" width="11" height="11"/><rect x="16" y="3" width="11" height="11"/><rect x="3" y="16" width="11" height="11"/>'],
+    ["dots", trad("Ronds"), '<circle cx="8.5" cy="8.5" r="5.5"/><circle cx="21.5" cy="8.5" r="5.5"/><circle cx="8.5" cy="21.5" r="5.5"/>'],
+    ["rounded", trad("Arrondis"), '<rect x="3" y="3" width="24" height="11" rx="5.5"/><rect x="3" y="16" width="11" height="11" rx="5.5"/>'],
+    ["extra-rounded", trad("Très arrondis"), '<rect x="3" y="3" width="24" height="11" rx="5.5"/><circle cx="8.5" cy="21.5" r="5.5"/>'],
+    ["classy", trad("Élégants"), '<path d="M3 3h11v11H8.5A5.5 5.5 0 0 1 3 8.5zM16 16h11v5.5a5.5 5.5 0 0 1-5.5 5.5H16z"/>'],
+    ["classy-rounded", trad("Élégants ronds"), '<path d="M3 8.5A5.5 5.5 0 0 1 8.5 3H14v11H3zM16 16h11v5.5a5.5 5.5 0 0 1-5.5 5.5H16z"/>'],
   ];
   const CORNERS = [
-    ["square", "Carrés", '<path d="M3 3h24v24H3zM7 7v16h16V7z" fill-rule="evenodd"/><rect x="11" y="11" width="8" height="8"/>'],
-    ["extra-rounded", "Arrondis", '<path d="M10 3h10a7 7 0 0 1 7 7v10a7 7 0 0 1-7 7H10a7 7 0 0 1-7-7V10a7 7 0 0 1 7-7zm0 4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V10a3 3 0 0 0-3-3z" fill-rule="evenodd"/><rect x="11" y="11" width="8" height="8" rx="2"/>'],
-    ["dot", "Ronds", '<path d="M15 3a12 12 0 1 1 0 24 12 12 0 0 1 0-24zm0 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16z" fill-rule="evenodd"/><circle cx="15" cy="15" r="4.5"/>'],
+    ["square", trad("Carrés"), '<path d="M3 3h24v24H3zM7 7v16h16V7z" fill-rule="evenodd"/><rect x="11" y="11" width="8" height="8"/>'],
+    ["extra-rounded", trad("Arrondis"), '<path d="M10 3h10a7 7 0 0 1 7 7v10a7 7 0 0 1-7 7H10a7 7 0 0 1-7-7V10a7 7 0 0 1 7-7zm0 4a3 3 0 0 0-3 3v10a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3V10a3 3 0 0 0-3-3z" fill-rule="evenodd"/><rect x="11" y="11" width="8" height="8" rx="2"/>'],
+    ["dot", trad("Ronds"), '<path d="M15 3a12 12 0 1 1 0 24 12 12 0 0 1 0-24zm0 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16z" fill-rule="evenodd"/><circle cx="15" cy="15" r="4.5"/>'],
   ];
   const PALETTES = [
     ["#15201e", "#ffffff"], ["#000000", "#ffffff"], ["#0f6e66", "#ffffff"], ["#1d3a8a", "#eef2ff"],
@@ -116,7 +116,7 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
   shapeButtons($("corner-shapes"), CORNERS, "cornerType");
 
   $("swatches").innerHTML = PALETTES.map(([a, b], i) =>
-    `<button class="sw" data-i="${i}" aria-label="Palette ${a} sur ${b}" title="${a} sur ${b}"><i style="background:${b}"></i><i style="background:${a}"></i></button>`).join("");
+    `<button class="sw" data-i="${i}" aria-label="${trad("Palette {a} sur {b}", { a, b })}" title="${trad("{a} sur {b}", { a, b })}"><i style="background:${b}"></i><i style="background:${a}"></i></button>`).join("");
   $("swatches").addEventListener("click", (e) => {
     const b = e.target.closest(".sw"); if (!b) return;
     const [a, bg] = PALETTES[+b.dataset.i];
@@ -145,7 +145,7 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
     $("img-size-o").textContent = Math.round(S.imgSize * 100) + " %";
     $("img-margin-o").textContent = S.imgMargin + " px";
     $("c-dots-o").textContent = S.dots;
-    $("c-bg-o").textContent = S.bgT ? "transparent" : S.bg;
+    $("c-bg-o").textContent = S.bgT ? trad("transparent") : S.bg;
     $("c-bg").disabled = S.bgT;
     $("grad-opts").hidden = !S.grad;
     $("c-corner").disabled = $("c-cornerdot").disabled = !S.cornerCustom;
@@ -156,7 +156,7 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 
   // ---------- Image ----------
   function loadFile(file) {
-    if (!file || !file.type.startsWith("image/")) { toast("Ce fichier n’est pas une image."); return; }
+    if (!file || !file.type.startsWith("image/")) { toast(trad("Ce fichier n’est pas une image.")); return; }
     const r = new FileReader();
     r.onload = () => {
       // Convertit en PNG (max 600 px) : l’image est intégrée telle quelle, sans requête réseau
@@ -171,10 +171,10 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
         $("thumb").innerHTML = '<img alt="" src="' + image + '">';
         $("drop-txt").textContent = file.name;
         $("img-clear").hidden = false;
-        if (S.ecl === "L" || S.ecl === "M") { S.ecl = "H"; syncUI(); toast("Correction passée à H pour que le code reste lisible avec l’image."); }
+        if (S.ecl === "L" || S.ecl === "M") { S.ecl = "H"; syncUI(); toast(trad("Correction passée à H pour que le code reste lisible avec l’image.")); }
         render();
       };
-      img.onerror = () => toast("Impossible de lire cette image. Essaie un PNG ou un JPG.");
+      img.onerror = () => toast(trad("Impossible de lire cette image. Essaie un PNG ou un JPG."));
       img.src = r.result;
     };
     r.readAsDataURL(file);
@@ -182,7 +182,7 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
   $("file").addEventListener("change", (e) => loadFile(e.target.files[0]));
   $("img-clear").addEventListener("click", () => {
     image = null; $("thumb").innerHTML = ""; $("file").value = "";
-    $("drop-txt").textContent = "Aucune image. Glisse un logo ici ou choisis un fichier (PNG, JPG, SVG).";
+    $("drop-txt").textContent = trad("Aucune image. Glisse un logo ici ou choisis un fichier (PNG, JPG, SVG).");
     $("img-clear").hidden = true; render();
   });
   const drop = $("drop");
@@ -232,21 +232,21 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
     const data = payload();
     const n = bytes(data);
     $("payload").textContent = data || "—";
-    $("sp-len").textContent = n + " o";
+    $("sp-len").textContent = trad("{n} o", { n });
     const notes = [];
     const box = $("qr");
 
     if (typeof QRCodeStyling === "undefined") {
-      box.innerHTML = '<div class="err">La bibliothèque QR n’a pas pu se charger. Vérifie ta connexion puis recharge la page.</div>';
+      box.innerHTML = '<div class="err">' + trad("La bibliothèque QR n’a pas pu se charger. Vérifie ta connexion puis recharge la page.") + "</div>";
       return;
     }
     if (!data) {
-      qr = null; box.innerHTML = '<div class="err">Remplis le contenu pour générer le code.</div>';
+      qr = null; box.innerHTML = '<div class="err">' + trad("Remplis le contenu pour générer le code.") + "</div>";
       $("sp-ver").textContent = $("sp-mod").textContent = "–"; $("notes").innerHTML = ""; return;
     }
     if (n > CAP[S.ecl]) {
       qr = null;
-      box.innerHTML = `<div class="err">Trop de données : ${n} octets pour ${CAP[S.ecl]} au maximum en correction ${S.ecl}. Raccourcis le texte ou baisse la correction.</div>`;
+      box.innerHTML = `<div class="err">${trad("Trop de données : {n} octets pour {max} au maximum en correction {ecl}. Raccourcis le texte ou baisse la correction.", { n, max: CAP[S.ecl], ecl: S.ecl })}</div>`;
       $("sp-ver").textContent = $("sp-mod").textContent = "–"; $("notes").innerHTML = ""; return;
     }
     try {
@@ -254,7 +254,7 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
       box.innerHTML = "";
       qr.append(box);
     } catch (e) {
-      qr = null; box.innerHTML = '<div class="err">Impossible de générer ce code : ' + esc(e.message || e) + "</div>"; return;
+      qr = null; box.innerHTML = '<div class="err">' + esc(trad("Impossible de générer ce code : {erreur}", { erreur: e.message || e })) + "</div>"; return;
     }
 
     let mods = 0;
@@ -265,20 +265,20 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
     const bgHex = S.bgT ? "#ffffff" : S.bg;
     const L1 = lum(S.dots), L2 = lum(bgHex);
     const ratio = (Math.max(L1, L2) + 0.05) / (Math.min(L1, L2) + 0.05);
-    if (ratio < 3) notes.push(["bad", "Contraste faible entre le motif et le fond : beaucoup de téléphones n’arriveront pas à le lire."]);
-    if (L1 > L2) notes.push(["", "Motif plus clair que le fond : certains lecteurs ne lisent pas les codes inversés."]);
-    if (S.bgT) notes.push(["", "Fond transparent : place le code sur une surface claire et unie."]);
-    if (image && S.imgSize > 0.4 && S.ecl !== "H") notes.push(["bad", "Image grande avec une correction faible : passe en H ou réduis l’image."]);
-    else if (image && (S.ecl === "L" || S.ecl === "M")) notes.push(["", "Avec une image, une correction Q ou H est plus sûre."]);
-    if (S.margin < 16) notes.push(["", "Marge très fine : laisse de l’espace blanc autour du code à l’impression."]);
-    if (mods > 57) notes.push(["", `Code dense (${mods}×${mods}) : imprime-le à au moins ${Math.ceil(mods * 0.5 / 10)} cm de côté.`]);
+    if (ratio < 3) notes.push(["bad", trad("Contraste faible entre le motif et le fond : beaucoup de téléphones n’arriveront pas à le lire.")]);
+    if (L1 > L2) notes.push(["", trad("Motif plus clair que le fond : certains lecteurs ne lisent pas les codes inversés.")]);
+    if (S.bgT) notes.push(["", trad("Fond transparent : place le code sur une surface claire et unie.")]);
+    if (image && S.imgSize > 0.4 && S.ecl !== "H") notes.push(["bad", trad("Image grande avec une correction faible : passe en H ou réduis l’image.")]);
+    else if (image && (S.ecl === "L" || S.ecl === "M")) notes.push(["", trad("Avec une image, une correction Q ou H est plus sûre.")]);
+    if (S.margin < 16) notes.push(["", trad("Marge très fine : laisse de l’espace blanc autour du code à l’impression.")]);
+    if (mods > 57) notes.push(["", trad("Code dense ({m}×{m}) : imprime-le à au moins {cm} cm de côté.", { m: mods, cm: Math.ceil(mods * 0.5 / 10) })]);
     $("notes").innerHTML = notes.map(([k, t]) => `<div class="note ${k}">${t}</div>`).join("");
   }
 
   // ---------- Export ----------
   let lastBlob = null, lastUrl = null;
   $("export").addEventListener("click", async () => {
-    if (!qr) { toast("Aucun code à exporter."); return; }
+    if (!qr) { toast(trad("Aucun code à exporter.")); return; }
     const fmt = $("fmt").value;
     try {
       const blob = await qr.getRawData(fmt);
@@ -291,8 +291,8 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
       $("copy-img").hidden = fmt === "svg";
       $("dl").hidden = !standalone;
       $("dl").dataset.ext = fmt === "jpeg" ? "jpg" : fmt;
-      toast(`Export ${fmt.toUpperCase()} prêt (${S.size}×${S.size} px).`);
-    } catch (e) { toast("L’export a échoué : " + (e.message || e)); }
+      toast(trad("Export {fmt} prêt ({t}×{t} px).", { fmt: fmt.toUpperCase(), t: S.size }));
+    } catch (e) { toast(trad("L’export a échoué : {erreur}", { erreur: e.message || e })); }
   });
   $("dl").addEventListener("click", () => {
     if (!lastUrl) return;
@@ -304,21 +304,21 @@ const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
     try {
       const png = $("fmt").value === "png" ? lastBlob : await qr.getRawData("png");
       await navigator.clipboard.write([new ClipboardItem({ "image/png": png })]);
-      toast("Image copiée dans le presse-papiers.");
-    } catch (e) { toast("La copie d’image est bloquée ici. Utilise clic droit › Copier l’image."); }
+      toast(trad("Image copiée dans le presse-papiers."));
+    } catch (e) { toast(trad("La copie d’image est bloquée ici. Utilise clic droit › Copier l’image.")); }
   });
   $("copy-svg").addEventListener("click", async () => {
-    try { const t = await lastBlob.text(); await navigator.clipboard.writeText(t); toast("Code SVG copié."); }
-    catch (e) { toast("Copie refusée par le navigateur."); }
+    try { const t = await lastBlob.text(); await navigator.clipboard.writeText(t); toast(trad("Code SVG copié.")); }
+    catch (e) { toast(trad("Copie refusée par le navigateur.")); }
   });
   $("copy-payload").addEventListener("click", () => {
     const text = payload();
-    navigator.clipboard.writeText(text).then(() => toast("Texte encodé copié."), () => {
+    navigator.clipboard.writeText(text).then(() => toast(trad("Texte encodé copié.")), () => {
       const r = document.createRange(); r.selectNodeContents($("payload"));
-      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast("Texte sélectionné : fais Cmd/Ctrl + C.");
+      const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast(trad("Texte sélectionné : fais Cmd/Ctrl + C."));
     });
   });
-  $("reset").addEventListener("click", () => { S = Object.assign({}, DEFAULTS); syncUI(); render(); toast("Style réinitialisé."); });
+  $("reset").addEventListener("click", () => { S = Object.assign({}, DEFAULTS); syncUI(); render(); toast(trad("Style réinitialisé.")); });
 
   let tt = 0;
   function toast(t) { $("toast").textContent = t; clearTimeout(tt); tt = setTimeout(() => ($("toast").textContent = ""), 4000); }

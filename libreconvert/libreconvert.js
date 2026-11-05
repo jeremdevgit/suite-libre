@@ -19,11 +19,15 @@
   let cat = loadPref("libreconvert-cat", "Longueur");
   if (!U[cat]) cat = "Longueur";
 
+  // Séparateur décimal de la langue choisie
+  const DEC = new Intl.NumberFormat(LOCALE).format(1.5).charAt(1);
+  // Symboles d'unité propres à chaque langue (Mo → MB…) ; les autres restent identiques
+  const sym = (u) => trad(u);
   const num = (v) => {
     if (!isFinite(v)) return "–";
     const a = Math.abs(v);
-    if (a !== 0 && (a < 1e-6 || a >= 1e15)) return v.toExponential(6).replace(".", ",").replace(/0+e/, "e").replace(/,e/, "e");
-    return new Intl.NumberFormat("fr-FR", { maximumSignificantDigits: 12 }).format(v);
+    if (a !== 0 && (a < 1e-6 || a >= 1e15)) return v.toExponential(6).replace(/\.?0+e/, "e").replace(".", DEC);
+    return new Intl.NumberFormat(LOCALE, { maximumSignificantDigits: 12 }).format(v);
   };
   function conv(v, from, to) {
     if (cat === "Température") return fromK[to](toK[from](v));
@@ -31,19 +35,19 @@
     return (v * f) / t;
   }
   function fillUnits() {
-    $("cats").innerHTML = Object.keys(U).map((c) => `<button class="cat" data-c="${c}" aria-pressed="${c === cat}">${c}</button>`).join("");
-    const opts = U[cat].map((u) => `<option value="${esc(u[0])}">${esc(u[1])} (${esc(u[0])})</option>`).join("");
+    $("cats").innerHTML = Object.keys(U).map((c) => `<button class="cat" data-c="${c}" aria-pressed="${c === cat}">${esc(trad(c))}</button>`).join("");
+    const opts = U[cat].map((u) => `<option value="${esc(u[0])}">${esc(trad(u[1]))} (${esc(sym(u[0]))})</option>`).join("");
     $("u-from").innerHTML = opts; $("u-to").innerHTML = opts;
     $("u-from").value = DEF[cat][0]; $("u-to").value = DEF[cat][1];
     updUnits();
   }
   function updUnits() {
     const v = parseNum($("u-val").value), from = $("u-from").value, to = $("u-to").value;
-    if (v == null) { $("u-out").textContent = "–"; $("u-all").innerHTML = ""; $("u-formula").textContent = "Saisis un nombre."; return; }
+    if (v == null) { $("u-out").textContent = "–"; $("u-all").innerHTML = ""; $("u-formula").textContent = trad("Saisis un nombre."); return; }
     const r = conv(v, from, to);
-    $("u-out").textContent = num(r) + " " + to;
-    $("u-formula").textContent = cat === "Température" ? "" : `1 ${from} = ${num(conv(1, from, to))} ${to}`;
-    $("u-all").innerHTML = U[cat].map((u) => `<tr><td>${esc(u[1])}</td><td class="num">${num(conv(v, from, u[0]))}</td><td>${esc(u[0])}</td></tr>`).join("");
+    $("u-out").textContent = num(r) + " " + sym(to);
+    $("u-formula").textContent = cat === "Température" ? "" : `1 ${sym(from)} = ${num(conv(1, from, to))} ${sym(to)}`;
+    $("u-all").innerHTML = U[cat].map((u) => `<tr><td>${esc(trad(u[1]))}</td><td class="num">${num(conv(v, from, u[0]))}</td><td>${esc(sym(u[0]))}</td></tr>`).join("");
   }
   $("cats").addEventListener("click", (e) => { const b = e.target.closest(".cat"); if (!b) return; cat = b.dataset.c; savePref("libreconvert-cat", cat); fillUnits(); });
   ["u-val", "u-from", "u-to"].forEach((id) => $(id).addEventListener("input", updUnits));
@@ -55,7 +59,7 @@
   const DAY = 86400000;
   const iso = (d) => d.toISOString().slice(0, 10);
   const parseD = (s) => (s ? new Date(s + "T00:00:00Z") : null);
-  const longDate = (d) => new Intl.DateTimeFormat("fr-FR", { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(d);
+  const longDate = (d) => new Intl.DateTimeFormat(LOCALE, { weekday: "long", day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(d);
   function easter(y) {
     const a = y % 19, b = Math.floor(y / 100), c = y % 100, d = Math.floor(b / 4), e = b % 4, f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
     const h = (19 * a + b - d - g + 15) % 30, i = Math.floor(c / 4), k = c % 4, l = (32 + 2 * e + 2 * i - h - k) % 7, m = Math.floor((a + 11 * h + 22 * l) / 451);
@@ -66,8 +70,8 @@
   function holidays(y, am) {
     const key = y + (am ? "am" : ""); if (holCache[key]) return holCache[key];
     const e = easter(y), D = (m, d) => Date.UTC(y, m - 1, d);
-    const list = [[D(1, 1), "Jour de l’An"], [e + DAY, "Lundi de Pâques"], [D(5, 1), "Fête du Travail"], [D(5, 8), "Victoire 1945"], [e + 39 * DAY, "Ascension"], [e + 50 * DAY, "Lundi de Pentecôte"], [D(7, 14), "Fête nationale"], [D(8, 15), "Assomption"], [D(11, 1), "Toussaint"], [D(11, 11), "Armistice 1918"], [D(12, 25), "Noël"]];
-    if (am) list.push([e - 2 * DAY, "Vendredi saint"], [D(12, 26), "Saint-Étienne"]);
+    const list = [[D(1, 1), trad("Jour de l’An")], [e + DAY, trad("Lundi de Pâques")], [D(5, 1), trad("Fête du Travail")], [D(5, 8), trad("Victoire 1945")], [e + 39 * DAY, trad("Ascension")], [e + 50 * DAY, trad("Lundi de Pentecôte")], [D(7, 14), trad("Fête nationale")], [D(8, 15), trad("Assomption")], [D(11, 1), trad("Toussaint")], [D(11, 11), trad("Armistice 1918")], [D(12, 25), trad("Noël")]];
+    if (am) list.push([e - 2 * DAY, trad("Vendredi saint")], [D(12, 26), trad("Saint-Étienne")]);
     return (holCache[key] = new Map(list));
   }
   const isHol = (t, am) => holidays(new Date(t).getUTCFullYear(), am).get(t);
@@ -78,10 +82,11 @@
     if (m < 0) { y--; m += 12; }
     return [y, m, d];
   }
-  const plural = (n, s, p) => `${nf(n, 0)} ${n > 1 ? p || s + "s" : s}`;
+  // plural(3, "{n} jour", "{n} jours") : accord selon la langue
+  const plural = (n, un, plusieurs) => tradn(n, un, plusieurs, { n: nf(n, 0) });
   function updDiff() {
     let a = parseD($("d-a").value), b = parseD($("d-b").value);
-    if (!a || !b) { $("d-res").innerHTML = '<div class="empty">Choisis deux dates.</div>'; $("d-hol").innerHTML = ""; return; }
+    if (!a || !b) { $("d-res").innerHTML = '<div class="empty">' + trad("Choisis deux dates.") + "</div>"; $("d-hol").innerHTML = ""; return; }
     let sign = 1; if (b < a) { [a, b] = [b, a]; sign = -1; }
     const incl = $("d-incl").checked, am = $("d-am").checked;
     const end = b.getTime() + (incl ? DAY : 0);
@@ -90,19 +95,19 @@
     for (let t = a.getTime(); t < end; t += DAY) {
       const w = new Date(t).getUTCDay(), h = isHol(t, am);
       if (w === 0 || w === 6) we++; else if (h) hol.push([t, h]); else work++;
-      if (h && (w === 0 || w === 6)) hol.push([t, h + " (week-end)"]);
+      if (h && (w === 0 || w === 6)) hol.push([t, h, true]);
     }
     const [y, m, d] = calDiff(a, new Date(end));
     const tile = (big, label) => `<div class="tile"><span class="lab">${label}</span><span class="val">${big}</span></div>`;
     $("d-res").innerHTML = [
-      tile(plural(days, "jour"), "Durée" + (sign < 0 ? " (dates inversées)" : "")),
-      tile(`${plural(Math.floor(days / 7), "semaine")}${days % 7 ? " et " + plural(days % 7, "jour") : ""}`, "En semaines"),
-      tile([y && plural(y, "an"), m && plural(m, "mois", "mois"), d && plural(d, "jour")].filter(Boolean).join(", ") || "0 jour", "En calendrier"),
-      tile(plural(work, "jour ouvré", "jours ouvrés"), "Du lundi au vendredi, hors fériés"),
-      tile(plural(we, "jour"), "Week-ends"),
-      tile(plural(hol.filter((h) => !h[1].includes("week-end")).length, "jour férié", "jours fériés"), "En semaine"),
+      tile(plural(days, "{n} jour", "{n} jours"), sign < 0 ? trad("Durée (dates inversées)") : trad("Durée")),
+      tile(days % 7 ? trad("{semaines} et {jours}", { semaines: plural(Math.floor(days / 7), "{n} semaine", "{n} semaines"), jours: plural(days % 7, "{n} jour", "{n} jours") }) : plural(Math.floor(days / 7), "{n} semaine", "{n} semaines"), trad("En semaines")),
+      tile([y && plural(y, "{n} an", "{n} ans"), m && plural(m, "{n} mois", "{n} mois"), d && plural(d, "{n} jour", "{n} jours")].filter(Boolean).join(", ") || plural(0, "{n} jour", "{n} jours"), trad("En calendrier")),
+      tile(plural(work, "{n} jour ouvré", "{n} jours ouvrés"), trad("Du lundi au vendredi, hors fériés")),
+      tile(plural(we, "{n} jour", "{n} jours"), trad("Week-ends")),
+      tile(plural(hol.filter((h) => !h[2]).length, "{n} jour férié", "{n} jours fériés"), trad("En semaine")),
     ].join("");
-    $("d-hol").innerHTML = hol.length ? '<table class="t"><tbody>' + hol.sort((p, q) => p[0] - q[0]).map(([t, n]) => `<tr><td>${longDate(new Date(t))}</td><td>${esc(n)}</td></tr>`).join("") + "</tbody></table>" : '<p class="hint" style="margin:0">Aucun jour férié dans cette période.</p>';
+    $("d-hol").innerHTML = hol.length ? '<table class="t"><tbody>' + hol.sort((p, q) => p[0] - q[0]).map(([t, n, we]) => `<tr><td>${longDate(new Date(t))}</td><td>${esc(we ? trad("{nom} (week-end)", { nom: n }) : n)}</td></tr>`).join("") + "</tbody></table>" : '<p class="hint" style="margin:0">' + trad("Aucun jour férié dans cette période.") + "</p>";
   }
   ["d-a", "d-b", "d-incl", "d-am"].forEach((id) => $(id).addEventListener("input", updDiff));
 
@@ -125,7 +130,7 @@
       r = new Date(t);
     }
     const h = isHol(r.getTime(), am), w = r.getUTCDay();
-    $("a-out").innerHTML = esc(longDate(r)) + (h ? ` <span class="chip warn">${esc(h)}</span>` : w === 0 || w === 6 ? ' <span class="chip">Week-end</span>' : "");
+    $("a-out").innerHTML = esc(longDate(r)) + (h ? ` <span class="chip warn">${esc(h)}</span>` : w === 0 || w === 6 ? ' <span class="chip">' + trad("Week-end") + "</span>" : "");
   }
   ["a-d", "a-n", "a-u"].forEach((id) => $(id).addEventListener("input", updAdd));
   [$("a-plus"), $("a-minus")].forEach((b) => b.addEventListener("click", () => {
@@ -147,7 +152,7 @@
   if (!ALL.length) ALL = BASE;
   if (!ALL.includes("UTC")) ALL = ALL.concat("UTC");
   const local = Intl.DateTimeFormat().resolvedOptions().timeZone || "Europe/Paris";
-  const cityName = (z) => (z === "UTC" ? "UTC (temps universel)" : z.split("/").pop().replace(/_/g, " "));
+  const cityName = (z) => (z === "UTC" ? trad("UTC (temps universel)") : z.split("/").pop().replace(/_/g, " "));
   const zoneOpts = (list) => list.map((z) => `<option value="${esc(z)}">${esc(cityName(z))} · ${esc(z)}</option>`).join("");
   $("z-from").innerHTML = zoneOpts(ALL); $("z-from").value = ALL.includes(local) ? local : "Europe/Paris";
   $("z-add").innerHTML = zoneOpts(ALL);
@@ -172,12 +177,12 @@
     $("z-list").innerHTML = zones.map((z, i) => {
       const p = partsIn(z, t), off = offsetMin(z, t), h = +p.hour % 24;
       const dd = Date.UTC(+p.year, +p.month - 1, +p.day) - Date.UTC(...(() => { const s = partsIn(from, t); return [+s.year, +s.month - 1, +s.day]; })());
-      const shift = dd > 0 ? '<span class="chip">+1 j</span>' : dd < 0 ? '<span class="chip">−1 j</span>' : "";
-      const day = new Intl.DateTimeFormat("fr-FR", { timeZone: z, weekday: "short", day: "numeric", month: "short" }).format(t);
+      const shift = dd > 0 ? '<span class="chip">' + trad("+1 j") + "</span>" : dd < 0 ? '<span class="chip">' + trad("−1 j") + "</span>" : "";
+      const day = new Intl.DateTimeFormat(LOCALE, { timeZone: z, weekday: "short", day: "numeric", month: "short" }).format(t);
       return `<div class="zone"><div class="city">${esc(cityName(z))}<small>${esc(z)} · ${fmtOff(off)}</small></div>
-        <div class="time">${String(h).padStart(2, "0")}:${p.minute}<small>${esc(day)} ${shift} ${h >= 7 && h < 22 ? "" : "· nuit"}</small></div>
-        <button class="iconbtn" data-rmz="${i}" aria-label="Retirer ${esc(cityName(z))}" title="Retirer">×</button></div>`;
-    }).join("") || '<div class="empty">Ajoute un fuseau ci-dessous.</div>';
+        <div class="time">${String(h).padStart(2, "0")}:${p.minute}<small>${esc(day)} ${shift} ${h >= 7 && h < 22 ? "" : "· " + trad("nuit")}</small></div>
+        <button class="iconbtn" data-rmz="${i}" aria-label="${esc(trad("Retirer {ville}", { ville: cityName(z) }))}" title="${trad("Retirer")}">×</button></div>`;
+    }).join("") || '<div class="empty">' + trad("Ajoute un fuseau ci-dessous.") + "</div>";
   }
   function setNow() { const n = new Date(); const p = partsIn($("z-from").value, n.getTime()); $("z-dt").value = `${p.year}-${p.month}-${p.day}T${String(+p.hour % 24).padStart(2, "0")}:${p.minute}`; updZones(); }
   ["z-dt", "z-from"].forEach((id) => $(id).addEventListener("input", updZones));
@@ -200,13 +205,13 @@
   const group = (s, n, sep) => s.replace(new RegExp(`\\B(?=(.{${n}})+$)`, "g"), sep);
   function updBases() {
     const base = +$("b-base").value, r = parseBig($("b-val").value, base);
-    if (!r) { $("b-out").innerHTML = '<div class="empty">Saisis un nombre entier.</div>'; return; }
-    if (r.bad) { $("b-out").innerHTML = `<div class="note bad">« ${esc(r.bad)} » n’existe pas en base ${base}.</div>`; return; }
+    if (!r) { $("b-out").innerHTML = '<div class="empty">' + trad("Saisis un nombre entier.") + "</div>"; return; }
+    if (r.bad) { $("b-out").innerHTML = `<div class="note bad">${esc(trad("« {c} » n’existe pas en base {base}.", { c: r.bad, base }))}</div>`; return; }
     const v = r.v, neg = v < 0n, a = neg ? -v : v, sg = neg ? "−" : "";
-    const rows = [["Décimal (10)", group(a.toString(10), 3, " ")], ["Binaire (2)", group(a.toString(2), 4, " ")], ["Octal (8)", a.toString(8)], ["Hexadécimal (16)", group(a.toString(16).toUpperCase(), 2, " ")], ["Base 36", a.toString(36).toUpperCase()]];
+    const rows = [[trad("Décimal (10)"), group(a.toString(10), 3, " ")], [trad("Binaire (2)"), group(a.toString(2), 4, " ")], [trad("Octal (8)"), a.toString(8)], [trad("Hexadécimal (16)"), group(a.toString(16).toUpperCase(), 2, " ")], [trad("Base 36"), a.toString(36).toUpperCase()]];
     const bits = a === 0n ? 1 : a.toString(2).length;
-    $("b-out").innerHTML = rows.map(([l, s]) => `<div class="base"><span class="hint">${l}</span><span class="v">${sg}${s}</span><button class="iconbtn" data-cp="${esc(sg.replace("−", "-") + s.replace(/ /g, ""))}" aria-label="Copier" title="Copier">⧉</button></div>`).join("") +
-      `<p class="hint" style="margin:0">${bits} bit${bits > 1 ? "s" : ""}${bits <= 8 ? " · tient sur 1 octet" : ` · ${Math.ceil(bits / 8)} octets`}</p>`;
+    $("b-out").innerHTML = rows.map(([l, s]) => `<div class="base"><span class="hint">${l}</span><span class="v">${sg}${s}</span><button class="iconbtn" data-cp="${esc(sg.replace("−", "-") + s.replace(/ /g, ""))}" aria-label="${trad("Copier")}" title="${trad("Copier")}">⧉</button></div>`).join("") +
+      `<p class="hint" style="margin:0">${tradn(bits, "{n} bit", "{n} bits")} · ${bits <= 8 ? trad("tient sur 1 octet") : trad("{n} octets", { n: Math.ceil(bits / 8) })}</p>`;
   }
   ["b-val", "b-base"].forEach((id) => $(id).addEventListener("input", updBases));
   $("b-out").addEventListener("click", (e) => { const b = e.target.closest("[data-cp]"); if (b) copyText(b.dataset.cp, b.previousElementSibling); });

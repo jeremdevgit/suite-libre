@@ -1,5 +1,21 @@
 # Historique des versions
 
+## 1.1.0 — 2026-11-06
+
+**English**
+
+- **8 languages** in all six tools and the home page: English, French, Spanish, German, Italian, Portuguese, Chinese and Japanese. The browser language is picked automatically, a menu at the top of each page lets you switch, and your choice is remembered.
+- Numbers, dates and units follow the chosen language (decimal separator, day and month names, MB/Mo symbols…).
+- LibrePass: passphrases use English words outside the French interface.
+- Offline versions: every language is included in each file.
+
+**Français**
+
+- **8 langues** dans les six outils et la page d'accueil : français, anglais, espagnol, allemand, italien, portugais, chinois et japonais. La langue du navigateur est choisie automatiquement, un menu en haut de chaque page permet d'en changer, et le choix est retenu.
+- Nombres, dates et unités affichés selon la langue choisie (séparateur décimal, noms des jours et des mois, symboles Mo/MB…).
+- LibrePass : phrases de passe en mots anglais dans les autres langues que le français.
+- Versions hors ligne : toutes les langues sont incluses dans chaque fichier.
+
 ## 2026-11-05 — Publication open source
 
 - Page d'accueil : section « Mes autres logiciels » ; crédit de chaque outil relié aux autres logiciels de l'auteur.

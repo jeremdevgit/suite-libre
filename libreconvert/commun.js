@@ -15,13 +15,13 @@ function toast(t) {
 }
 
 async function copyText(text, selectEl) {
-  try { await navigator.clipboard.writeText(text); toast("Copié."); return true; }
+  try { await navigator.clipboard.writeText(text); toast(trad("Copié.")); return true; }
   catch (e) {
     if (selectEl) {
       const r = document.createRange(); r.selectNodeContents(selectEl);
       const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
-      toast("Texte sélectionné : fais Cmd/Ctrl + C.");
-    } else toast("Copie refusée par le navigateur.");
+      toast(trad("Texte sélectionné : fais Cmd/Ctrl + C."));
+    } else toast(trad("Copie refusée par le navigateur."));
     return false;
   }
 }
@@ -48,5 +48,5 @@ function setupTabs(tabsEl, onChange) {
   return show;
 }
 
-const nf = (n, d = 2) => new Intl.NumberFormat("fr-FR", { maximumFractionDigits: d }).format(n);
+const nf = (n, d = 2) => new Intl.NumberFormat(LOCALE, { maximumFractionDigits: d }).format(n);
 const parseNum = (s) => { const v = parseFloat(String(s).replace(/\s/g, "").replace(",", ".")); return isFinite(v) ? v : null; };

@@ -275,6 +275,11 @@ table.t td.num { text-align: right; font-family: var(--f-mono); font-variant-num
 .kv dd { margin: 0; font-family: var(--f-mono); font-variant-numeric: tabular-nums; text-align: right; overflow-wrap: anywhere; }
 .empty { padding: 18px; border-radius: var(--r); border: 1.5px dashed var(--rule); color: var(--ink-soft); text-align: center; font-size: 14px; }
 </style>
+<style>
+/* Menu des langues */
+.langues { margin-left: auto; }
+.langue { font: 600 13px/1 var(--f-body); color: var(--ink); background: var(--glass-field); border: 1px solid var(--glass-edge-low); border-radius: 999px; padding: 8px 12px; cursor: pointer; box-shadow: inset 0 1px 2px var(--glass-shadow); }
+</style>
 <style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
 </head>
 <body>
@@ -304,8 +309,9 @@ table.t td.num { text-align: right; font-family: var(--f-mono); font-variant-num
 <div class="aura" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 <div class="wrap">
   <header class="top glass">
-    <div class="brand"><span class="drop-mark" aria-hidden="true"></span><h1>Libre<b>Notes</b></h1></div>
+    <div class="brand"><span class="drop-mark" aria-hidden="true"></span><h1 data-brut>Libre<b>Notes</b></h1></div>
     <p class="lede">Calcule ta moyenne et la note qu’il te faut pour valider.</p>
+    <span class="langues" data-langues></span>
   </header>
 
   <div class="grid">
@@ -373,6 +379,8 @@ table.t td.num { text-align: right; font-family: var(--f-mono); font-variant-num
   </section>
 </div>
 
+<script src="textes.js"></script>
+<script src="langue.js"></script>
 <script src="librenotes.js"></script>
 
 </body>

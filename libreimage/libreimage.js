@@ -3,7 +3,7 @@
   enableDownloads();
   const items = []; // {id, name, file, size, w, h, meta, img, out:{blob,url,w,h}, example}
   let uid = 0;
-  const fmtSize = (b) => (b < 1024 ? b + " o" : b < 1048576 ? nf(b / 1024, 0) + " Ko" : nf(b / 1048576, 1) + " Mo");
+  const fmtSize = (b) => (b < 1024 ? trad("{n} o", { n: b }) : b < 1048576 ? trad("{n} Ko", { n: nf(b / 1024, 0) }) : trad("{n} Mo", { n: nf(b / 1048576, 1) }));
   const EXT = { "image/jpeg": "jpg", "image/webp": "webp", "image/png": "png", "image/gif": "gif" };
 
   // ---------- Lecture EXIF (JPEG) ----------
@@ -71,14 +71,14 @@
       await process(it);
     } catch (e) {
       it.error = /\.(heic|heif)$/i.test(it.name) || /hei[cf]/.test(file.type)
-        ? "Ce navigateur ne sait pas lire le HEIC. Ouvre LibreImage dans Safari, ou règle l’iPhone sur « Le plus compatible » (Réglages › Appareil photo › Formats)."
-        : "Ce fichier n’a pas pu être lu comme une image.";
+        ? trad("Ce navigateur ne sait pas lire le HEIC. Ouvre LibreImage dans Safari, ou règle l’iPhone sur « Le plus compatible » (Réglages › Appareil photo › Formats).")
+        : trad("Ce fichier n’a pas pu être lu comme une image.");
     }
     render();
   }
   function addFiles(list) {
     const files = [...list].filter((f) => f.type.startsWith("image/") || /\.(heic|heif)$/i.test(f.name));
-    if (!files.length) { toast("Aucune image dans ce que tu as déposé."); return; }
+    if (!files.length) { toast(trad("Aucune image dans ce que tu as déposé.")); return; }
     for (let i = items.length - 1; i >= 0; i--) if (items[i].example) drop(items[i].id);
     files.forEach((f) => addFile(f, false));
   }
@@ -141,38 +141,38 @@
   }
   function render() {
     const box = $("results");
-    if (!items.length) { box.innerHTML = '<div class="empty">Aucune image pour l’instant.</div>'; $("bulk").hidden = true; $("sum").innerHTML = ""; return; }
+    if (!items.length) { box.innerHTML = '<div class="empty">' + trad("Aucune image pour l’instant.") + "</div>"; $("bulk").hidden = true; $("sum").innerHTML = ""; return; }
     box.innerHTML = items.map((it) => {
-      if (it.error) return `<div class="res"><div class="pic"></div><div class="body"><div class="name">${esc(it.name)}</div><div class="note bad">${esc(it.error)}</div><div class="acts"><button class="btn small" data-rm="${it.id}">Retirer</button></div></div></div>`;
-      if (!it.out) return `<div class="res"><div class="pic"></div><div class="body"><div class="name">${esc(it.name)}</div><span class="hint">Traitement…</span></div></div>`;
+      if (it.error) return `<div class="res"><div class="pic"></div><div class="body"><div class="name">${esc(it.name)}</div><div class="note bad">${esc(it.error)}</div><div class="acts"><button class="btn small" data-rm="${it.id}">${trad("Retirer")}</button></div></div></div>`;
+      if (!it.out) return `<div class="res"><div class="pic"></div><div class="body"><div class="name">${esc(it.name)}</div><span class="hint">${trad("Traitement…")}</span></div></div>`;
       const gain = 1 - it.out.blob.size / it.size;
       const tags = [];
-      if (it.example) tags.push('<span class="chip ex">Exemple</span>');
-      tags.push(gain > 0 ? `<span class="chip good">−${Math.round(gain * 100)} %</span>` : `<span class="chip warn">+${Math.round(-gain * 100)} % (choisis un autre format)</span>`);
+      if (it.example) tags.push('<span class="chip ex">' + trad("Exemple") + "</span>");
+      tags.push(gain > 0 ? `<span class="chip good">−${Math.round(gain * 100)} %</span>` : `<span class="chip warn">${trad("+{n} % (choisis un autre format)", { n: Math.round(-gain * 100) })}</span>`);
       const m = it.meta || {};
-      if (m.gps) tags.push(`<span class="chip bad" title="${m.gps.map((x) => x.toFixed(5)).join(", ")}">Position GPS retirée</span>`);
-      if (m.make || m.model) tags.push(`<span class="chip warn">Appareil retiré : ${esc([m.make, m.model].filter(Boolean).join(" "))}</span>`);
-      if (m.date) tags.push(`<span class="chip warn">Date retirée</span>`);
-      const save = canSave() ? `<button class="btn small primary" data-dl="${it.id}">Télécharger</button>` : `<span class="hint">Clic droit sur l’aperçu › Enregistrer l’image</span>`;
-      return `<div class="res"><div class="pic"><img src="${it.out.url}" alt="Aperçu de ${esc(it.name)}"></div><div class="body">
+      if (m.gps) tags.push(`<span class="chip bad" title="${m.gps.map((x) => x.toFixed(5)).join(", ")}">${trad("Position GPS retirée")}</span>`);
+      if (m.make || m.model) tags.push(`<span class="chip warn">${esc(trad("Appareil retiré : {nom}", { nom: [m.make, m.model].filter(Boolean).join(" ") }))}</span>`);
+      if (m.date) tags.push(`<span class="chip warn">${trad("Date retirée")}</span>`);
+      const save = canSave() ? `<button class="btn small primary" data-dl="${it.id}">${trad("Télécharger")}</button>` : `<span class="hint">${trad("Clic droit sur l’aperçu › Enregistrer l’image")}</span>`;
+      return `<div class="res"><div class="pic"><img src="${it.out.url}" alt="${esc(trad("Aperçu de {nom}", { nom: it.name }))}"></div><div class="body">
         <div class="name">${esc(it.name)}</div>
         <div class="facts"><span>${it.w}×${it.h} → ${it.out.w}×${it.out.h}</span><span>${fmtSize(it.size)} → ${fmtSize(it.out.blob.size)}</span><span>${(EXT[it.out.type] || "").toUpperCase()}</span></div>
         <div class="tags">${tags.join("")}</div>
-        <div class="acts">${save}<button class="btn small" data-rm="${it.id}">Retirer</button></div></div></div>`;
+        <div class="acts">${save}<button class="btn small" data-rm="${it.id}">${trad("Retirer")}</button></div></div></div>`;
     }).join("");
     const done = items.filter((i) => i.out);
     $("bulk").hidden = !done.length;
     $("zip").hidden = !canSave() || done.length < 2;
     const before = done.reduce((a, i) => a + i.size, 0), after = done.reduce((a, i) => a + i.out.blob.size, 0);
     const gps = done.filter((i) => i.meta?.gps).length;
-    $("sum").innerHTML = done.length ? `<dl class="kv"><dt>Images</dt><dd>${done.length}</dd><dt>Poids total</dt><dd>${fmtSize(before)} → ${fmtSize(after)}</dd><dt>Positions GPS retirées</dt><dd>${gps}</dd></dl>` : "";
+    $("sum").innerHTML = done.length ? `<dl class="kv"><dt>${trad("Images")}</dt><dd>${done.length}</dd><dt>${trad("Poids total")}</dt><dd>${fmtSize(before)} → ${fmtSize(after)}</dd><dt>${trad("Positions GPS retirées")}</dt><dd>${gps}</dd></dl>` : "";
   }
   $("results").addEventListener("click", async (e) => {
     const rm = e.target.closest("[data-rm]"), dl = e.target.closest("[data-dl]");
     if (rm) { drop(+rm.dataset.rm); render(); }
     if (dl) {
       const it = items.find((x) => x.id === +dl.dataset.dl);
-      try { const s = await saveFile(outName(it), it.out.blob); if (s === "saved") toast("Image enregistrée."); } catch (err) { toast(saveErrorText(err)); }
+      try { const s = await saveFile(outName(it), it.out.blob); if (s === "saved") toast(trad("Image enregistrée.")); } catch (err) { toast(saveErrorText(err)); }
     }
   });
   $("clear").addEventListener("click", () => { while (items.length) drop(items[0].id); render(); });
@@ -205,7 +205,7 @@
   $("zip").addEventListener("click", async () => {
     const done = items.filter((i) => i.out), used = new Set();
     const files = done.map((it) => { let n = outName(it), k = 2; while (used.has(n)) n = n.replace(/(-\d+)?(\.\w+)$/, "-" + k++ + "$2"); used.add(n); return { name: n, blob: it.out.blob }; });
-    try { const s = await saveFile("libreimage.zip", await makeZip(files)); if (s === "saved") toast("Archive enregistrée."); } catch (err) { toast(saveErrorText(err)); }
+    try { const s = await saveFile("libreimage.zip", await makeZip(files)); if (s === "saved") toast(trad("Archive enregistrée.")); } catch (err) { toast(saveErrorText(err)); }
   });
 
   // ---------- Réglages ----------
@@ -221,7 +221,7 @@
     const m = $("rmode").value;
     $("rval-wrap").hidden = $("presets").hidden = m === "none";
     if (m === "pct") $("presets").hidden = true;
-    $("rval-label").textContent = m === "pct" ? "Pourcentage (%)" : m === "w" ? "Largeur maximale (px)" : m === "h" ? "Hauteur maximale (px)" : "Taille maximale (px)";
+    $("rval-label").textContent = trad(m === "pct" ? "Pourcentage (%)" : m === "w" ? "Largeur maximale (px)" : m === "h" ? "Hauteur maximale (px)" : "Taille maximale (px)");
     savePref(PREF, Object.fromEntries(ids.map((id) => [id, $(id).value])));
   }
   ids.forEach((id) => $(id).addEventListener("input", () => { syncUI(); reprocessAll(); }));
@@ -242,7 +242,7 @@
       for (let x = 0; x <= 3000; x += 20) g.lineTo(x, y - 180 * Math.sin(x / 520 + ph) - 90 * Math.sin(x / 190 + ph * 2));
       g.lineTo(3000, 2000); g.fill();
     });
-    c.toBlob((b) => { if (b && !items.length) addFile(new File([b], "exemple-paysage.png", { type: "image/png" }), true); }, "image/png");
+    c.toBlob((b) => { if (b && !items.length) addFile(new File([b], trad("exemple-paysage") + ".png", { type: "image/png" }), true); }, "image/png");
   })();
   render();
 })();
