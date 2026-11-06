@@ -1,6 +1,6 @@
 # Suite Libre
 
-**English** · [Français](README.fr.md)
+**English** · [Français](README.fr.md) · [Español](README.es.md)
 
 **Six everyday tools that run entirely in your browser.** No account, no ads, no tracking: nothing is sent to a server. Each tool also comes as an **offline version**, a single HTML file you open with a double-click.
 

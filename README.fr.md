@@ -1,6 +1,6 @@
 # Suite Libre
 
-[English](README.md) · **Français**
+[English](README.md) · **Français** · [Español](README.es.md)
 
 **Six outils du quotidien qui fonctionnent entièrement dans ton navigateur.** Pas de compte, pas de publicité, pas de pistage : rien n'est envoyé sur un serveur. Chaque outil existe aussi en **version hors ligne**, un seul fichier HTML à ouvrir d'un double-clic.
 
