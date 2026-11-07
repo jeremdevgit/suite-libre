@@ -62,7 +62,7 @@ def construire(dossier: str, nom: str) -> pathlib.Path:
         raise SystemExit(f"{dossier} : balise CSP introuvable")
 
     # Contrôle : plus aucune ressource externe chargée (les liens <a> restent de simples liens)
-    sans_scripts = re.sub(r"<script>.*?</script>", "", html, flags=re.S)
+    sans_scripts = re.sub(r"<script\b[^>]*>.*?</script\s*>", "", html, flags=re.S | re.I)
     restes = re.findall(r'<(?:script|link|img)[^>]+(?:src|href)="(?!data:|#)([^"]+)"', sans_scripts)
     if restes:
         raise SystemExit(f"{dossier} : ressources non intégrées : {restes}")

@@ -1,5 +1,14 @@
 # Historique des versions
 
+## 1.1.1 — 2026-11-07 — Sécurité
+
+- Contrôle des ressources hors ligne : balises script insensibles à la casse. Éditeur documenté.
+
+### English
+
+- Handle script-tag case in the offline resource check. Document publisher identity.
+
+
 ## 1.1.0 — 2026-11-06
 
 **English**
