@@ -1,5 +1,14 @@
 # Historique des versions
 
+## 1.1.1 — 2026-11-07 — Sécurité
+
+- Contrôle des ressources hors ligne : analyse HTML structurée avec HTMLParser. Éditeur documenté.
+
+### English
+
+- Parse offline HTML resources structurally. Document publisher identity.
+
+
 ## 1.1.0 — 2026-11-06
 
 **English**

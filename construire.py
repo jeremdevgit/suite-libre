@@ -12,6 +12,7 @@ import base64
 import hashlib
 import pathlib
 import re
+from verifier_ressources import ressources_non_integrees
 
 RACINE = pathlib.Path(__file__).resolve().parent
 OUTILS = {
@@ -62,8 +63,7 @@ def construire(dossier: str, nom: str) -> pathlib.Path:
         raise SystemExit(f"{dossier} : balise CSP introuvable")
 
     # Contrôle : plus aucune ressource externe chargée (les liens <a> restent de simples liens)
-    sans_scripts = re.sub(r"<script>.*?</script>", "", html, flags=re.S)
-    restes = re.findall(r'<(?:script|link|img)[^>]+(?:src|href)="(?!data:|#)([^"]+)"', sans_scripts)
+    restes = ressources_non_integrees(html)
     if restes:
         raise SystemExit(f"{dossier} : ressources non intégrées : {restes}")
 
