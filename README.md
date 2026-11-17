@@ -1,144 +1,78 @@
-# Suite Libre
+<p align="center"><img src="suite-libre.svg" width="112" alt=""></p>
 
-**English** · [Français](README.fr.md) · [Español](README.es.md)
+<h1 align="center">Suite Libre</h1>
 
-**Six everyday tools that run entirely in your browser.** No account, no ads, no tracking: nothing is sent to a server. Each tool also comes as an **offline version**, a single HTML file you open with a double-click.
+<p align="center"><b>Six everyday tools in your browser, with no account and no tracking: QR codes, blurring, photos, conversions, grades, passwords.</b></p>
 
-**8 languages**: English, French, Spanish, German, Italian, Portuguese, Chinese and Japanese. Your browser's language is picked automatically; the menu at the top of each page lets you switch.
+<p align="center"><img src="https://img.shields.io/badge/%F0%9F%93%92%20Productivity%20%26%20data-Browser-1a9a6c?style=flat-square" alt="Productivity & data"> <a href="https://github.com/jeremdevgit/suite-libre/releases"><img src="https://img.shields.io/github/v/release/jeremdevgit/suite-libre?include_prereleases&style=flat-square&label=version" alt="version"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-555?style=flat-square" alt="GPL-3.0-or-later"></a></p>
+
+<p align="center"><b>English</b> · <a href="README.fr.md">Français</a> · <a href="README.es.md">Español</a> · <a href="README.de.md">Deutsch</a> · <a href="README.it.md">Italiano</a> · <a href="README.pt.md">Português</a> · <a href="README.zh.md">简体中文</a> · <a href="README.ja.md">日本語</a></p>
+
+<p align="center"><a href="https://jeremdevgit.github.io/suite-libre/"><b>▶ Open in your browser</b></a> · <a href="https://github.com/jeremdevgit/suite-libre/releases/latest">Download</a></p>
 
 ![Suite Libre home page](captures/en/accueil-pc.png)
 
-| Tool | What it does |
+Every tool runs **entirely in your browser**: nothing is sent to a server. Each one also comes as an **offline version**, a single HTML file you open with a double-click on Windows, macOS, Linux, Android or iPhone.
+
+## At a glance
+
+| | |
 |---|---|
-| [**LibreRR**](#librerr--qr-codes) | Create custom QR codes |
-| [**LibreFlou**](#libreflou--blur-before-sharing) | Blur faces, license plates and documents before sharing |
-| [**LibreImage**](#libreimage--shrink-and-clean-your-photos) | Shrink photos and strip their hidden information |
-| [**LibreConvert**](#libreconvert--conversions) | Units, dates, time zones, number bases |
-| [**LibreNotes**](#librenotes--grade-average) | Work out your average and the grade you need to pass |
-| [**LibrePass**](#librepass--passwords) | Generate strong passwords and test your own |
-
----
-
-## Using the tools
-
-**Online**: <https://jeremdevgit.github.io/suite-libre/>
-
-**Offline**: download the file for the tool you want from the [Releases](https://github.com/jeremdevgit/suite-libre/releases/latest) page (for example `LibreRR-hors-ligne.html`), then open it in your browser. It works without a connection on Windows, macOS, Linux, Android and iPhone.
-
-To check that a downloaded file hasn't been tampered with, compare its hash with `SHA256SUMS.txt` (published with each release):
-
-```sh
-# macOS / Linux
-shasum -a 256 -c SHA256SUMS.txt --ignore-missing
-# Windows (PowerShell)
-Get-FileHash .\LibreRR-hors-ligne.html -Algorithm SHA256
-```
-
----
+| **Category** | 📒 Productivity & data |
+| **Platforms** | Browser |
+| **Interface** | 8 languages (EN, FR, ES, DE, IT, PT, ZH, JA) |
+| **Price** | Free, open source, no ads, no telemetry |
+| **Status** | Stable |
+| **License** | [GPL-3.0-or-later](LICENSE) |
 
 ## The tools
 
-### LibreRR — QR codes
-
-A QR code for a link, a pre-filled email, text, a Wi-Fi network, a phone number, an SMS, a contact card or a location. Adjustable size, margin and error correction; colors, gradient, dot and corner shapes, logo in the center; export to PNG, SVG, JPEG or WEBP. Tips appear when the code might be hard to scan.
+| Tool | What it does |
+|---|---|
+| **LibreRR** | QR codes for links, email, text, Wi-Fi, phone, SMS, contact cards or places; colors, gradients, shapes, logo; PNG, SVG, JPEG or WEBP export |
+| **LibreFlou** | Blur, pixelate or mask faces, plates and documents before sharing; saved at full size **without GPS or hidden data** |
+| **LibreImage** | Shrink photos (JPEG, WEBP, PNG), resize them and **always strip** location, camera and date; single files or ZIP |
+| **LibreConvert** | Units, days between dates (with French public holidays), time zones, decimal/binary/octal/hex |
+| **LibreNotes** | Subject and overall averages with coefficients (French 0–20 scale), the grade you need to reach a target, CSV export |
+| **LibrePass** | Truly random passwords or memorable passphrases, and a strength test for your own |
 
 <p><img src="captures/en/librerr-pc.png" alt="LibreRR on a computer" width="72%"> <img src="captures/en/librerr-telephone.png" alt="LibreRR on a phone" width="22%"></p>
-
-### LibreFlou — blur before sharing
-
-Hide what shouldn't be seen in a photo or screenshot: faces, license plates, addresses, document numbers. Rectangles, ellipses or brush, each area with a blur, pixelate or solid mask effect. Areas can be moved, resized and undone. The image is saved at its original size, **without GPS location or other hidden information**.
-
 <p><img src="captures/en/libreflou-pc.png" alt="LibreFlou on a computer" width="72%"> <img src="captures/en/libreflou-telephone.png" alt="LibreFlou on a phone" width="22%"></p>
 
-### LibreImage — shrink and clean your photos
+## Use it
 
-Drop your images: LibreImage makes them smaller (JPEG, WEBP or PNG, adjustable quality), resizes them if needed and **always strips** hidden information (GPS location, camera, date taken). The size saved and the information removed are shown for each image; download one by one or as a ZIP.
+- **Online**: <https://jeremdevgit.github.io/suite-libre/>
+- **Offline**: download a tool from the [latest release](https://github.com/jeremdevgit/suite-libre/releases/latest) (for example `LibreRR-hors-ligne.html`) and open it.
+- **Verify** a download: `shasum -a 256 -c SHA256SUMS.txt --ignore-missing` (macOS/Linux) or `Get-FileHash` (Windows).
 
-<p><img src="captures/en/libreimage-pc.png" alt="LibreImage on a computer" width="72%"> <img src="captures/en/libreimage-telephone.png" alt="LibreImage on a phone" width="22%"></p>
+## Your data
 
-### LibreConvert — conversions
+- **Nothing leaves your device**: no server, cookies, analytics, or fonts and scripts from other sites.
+- A **strict Content Security Policy** on every page blocks any outside connection; offline files allow each script by its **SHA-256 hash**, so a modified file refuses to run.
+- LibrePass uses the browser's cryptographic generator (`crypto.getRandomValues`) without bias; LibreImage and LibreFlou output images with no metadata.
 
-Length, mass, temperature, volume, area, speed, digital data, duration, energy and pressure. Days, weeks and working days between two dates with French public holidays (Alsace-Moselle optional), adding or subtracting days, weeks or months, time in several time zones with daylight saving changes, conversion between decimal, binary, octal and hexadecimal.
-
-<p><img src="captures/en/libreconvert-pc.png" alt="LibreConvert on a computer" width="72%"> <img src="captures/en/libreconvert-telephone.png" alt="LibreConvert on a phone" width="22%"></p>
-
-### LibreNotes — grade average
-
-Add your subjects and assessments with their coefficients: LibreNotes calculates each subject's average, the overall average and the honors level (French 0–20 scale). Leave upcoming assessments empty and it tells you the grade you need to reach your target. CSV export. Your grades stay in your browser.
-
-<p><img src="captures/en/librenotes-pc.png" alt="LibreNotes on a computer" width="72%"> <img src="captures/en/librenotes-telephone.png" alt="LibreNotes on a phone" width="22%"></p>
-
-### LibrePass — passwords
-
-Generates truly random passwords (length, uppercase, digits, symbols, ambiguous characters avoided) or easy-to-remember passphrases (English words, French words in the French interface). It also tests your own passwords: estimated strength, time to crack and tips. Nothing is sent or saved.
-
-<p><img src="captures/en/librepass-pc.png" alt="LibrePass on a computer" width="72%"> <img src="captures/en/librepass-telephone.png" alt="LibrePass on a phone" width="22%"></p>
-
----
-
-## Privacy and security
-
-- **No data ever leaves your device.** No application server, no cookies, no analytics, no fonts or scripts loaded from another site.
-- **Strict Content Security Policy (CSP)** on every page: only the tool's own scripts can run, and no network connection is allowed outside the site itself. In the offline versions, each script is allowed by its **SHA-256 hash**: a modified file refuses to run.
-- **LibrePass** draws characters with the browser's cryptographic generator (`crypto.getRandomValues`), without bias.
-- **LibreImage and LibreFlou** produce images without metadata (GPS location, camera, date).
-- All text displayed in the page is escaped: a file name or an input can't inject code.
-
-Found a vulnerability? Please read [SECURITY.md](SECURITY.md) before opening a public issue.
-
----
-
-## Building the offline versions
-
-Python 3.8 or later is enough, with no dependencies:
+## Build and host
 
 ```sh
-python3 construire.py
+python3 construire.py      # Python 3.8+, no dependencies → dist/ (6 offline files + SHA256SUMS.txt)
 ```
 
-The six standalone files and `SHA256SUMS.txt` are created in `dist/`. Each file embeds the tool's icon, fonts, scripts and translations.
-
-## Hosting the suite
-
-The tools are plain static pages: any file hosting works. For **GitHub Pages**: *Settings → Pages → Build and deployment → Deploy from a branch → `main` / `(root)`*. The home page is `index.html`; each tool lives in its own folder.
-
-## Translations
-
-`langue.js` picks the language (`?lang=` link, saved choice, then browser language) and translates the page once when it loads. Texts are in each folder's `textes.js`, where the French text is the key: to fix a translation or add a language, just edit that file.
-
-## Repository layout
-
-```
-index.html, suite.css        suite home page
-librerr/ … librepass/        one folder per tool (index.html, script, icon, fonts)
-langue.js, */textes.js       language selection and translations
-construire.py                builds the offline versions (dist/)
-captures/                    screenshots (captures/en: English interface)
-licences-tiers/              third-party licenses
-```
+The tools are static pages, so any host works; for GitHub Pages choose *Deploy from a branch → `main` / root*. Texts live in each folder's `textes.js`, with the French text as key.
 
 ## License
 
-Code under the **GNU GPL v3 or later** — see [LICENSE](LICENSE). Copyright © 2026 jeremdevgit.
+GNU GPL v3 or later — see [LICENSE](LICENSE). Bundled [qr-code-styling](https://github.com/kozakdenys/qr-code-styling) (MIT) and the [Figtree](https://github.com/erikdkennedy/figtree) and [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) fonts (OFL 1.1), see [`licences-tiers/`](licences-tiers/).
 
-Bundled third-party components, under their own licenses (folder [licences-tiers](licences-tiers/)):
+---
 
-- [qr-code-styling](https://github.com/kozakdenys/qr-code-styling) — MIT license (LibreRR);
-- [Figtree](https://github.com/erikdkennedy/figtree) and [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) fonts — SIL Open Font License 1.1.
+Found a vulnerability? Please report it privately (see [SECURITY.md](SECURITY.md)) rather than in a public issue.
 
-## My other software
+## More free software by jeremdevgit
 
-All free, open source and ad-free — [github.com/jeremdevgit](https://github.com/jeremdevgit):
+All free, open source and ad-free.
 
-| Software | Platform | In short |
-|---|---|---|
-| [AutoDex](https://github.com/jeremdevgit/autodex) | Windows, macOS, Linux | Car collection game with on-device photo recognition |
-| [Boîte à outils](https://github.com/jeremdevgit/boite-a-outils) | Windows, macOS | Computer maintenance, cleanup and file search |
-| [Carnet de notes](https://github.com/jeremdevgit/carnet-rust) | Windows | Encrypted notebooks and experimental sync |
-| [Decklight](https://github.com/jeremdevgit/decklight) | Windows, macOS, Linux | Virtual Stream Deck with USB control |
-| [JMeca](https://github.com/jeremdevgit/jmeca) | Windows, macOS, Linux | Encrypted vehicle maintenance tracker |
-| [LJ Hub](https://github.com/jeremdevgit/lj-hub) | Windows, macOS, Linux | Logitech device profile manager |
-| [Pomme](https://github.com/jeremdevgit/pomme) | Windows | Apple Music and local music player |
-| [rJb](https://github.com/jeremdevgit/rjb) | Windows | RGB lighting control |
-| [Ludothèque](https://github.com/jeremdevgit/ludotheque) | macOS | Game library and launcher |
-| [Batailles de France](https://github.com/jeremdevgit/batailles-de-france) | Browser | Real-time strategy game |
+**🛠️ System & hardware** — [Boîte à outils](https://github.com/jeremdevgit/boite-a-outils) · [rJb](https://github.com/jeremdevgit/rjb) · [LJ Hub](https://github.com/jeremdevgit/lj-hub) · [Decklight](https://github.com/jeremdevgit/decklight)
+
+**📒 Productivity & data** — [Carnet de notes](https://github.com/jeremdevgit/carnet-rust) · [JMeca](https://github.com/jeremdevgit/jmeca)
+
+**🎮 Music & games** — [Pomme](https://github.com/jeremdevgit/pomme) · [Ludothèque](https://github.com/jeremdevgit/ludotheque) · [AutoDex](https://github.com/jeremdevgit/autodex) · [Batailles de France](https://github.com/jeremdevgit/batailles-de-france)
