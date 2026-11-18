@@ -9,7 +9,7 @@
   - **Vidéo** : sans détourage, fond vert ou uni, caméra fixe avec fond calculé automatiquement ; caméra en direct ; recadrage, largeur et hauteur en pixels, début et fin ; enregistrement WEBM ou MP4 avec le son, GIF animé, suite d’images PNG ou JPEG en ZIP, image actuelle.
   - **Choix du format d’export** partout : PNG, JPEG, WEBP, AVIF (selon le navigateur), GIF, BMP, TIFF, ICO (16 à 256 px) et PDF, sans métadonnées.
   - Passage d’une image d’un onglet à l’autre (détourer puis retoucher, retoucher puis flouter…).
-- LibreFlou et LibreImage sont retirés de la suite et de la page d’accueil.
+- LibreFlou et LibreImage sont retirés de la suite et de la page d’accueil. Leurs anciennes adresses (`libreflou/`, `libreimage/`) redirigent vers l’onglet correspondant de LibreMedias.
 - Tests des algorithmes et des encodeurs (`node --test tests/*.test.js`) ajoutés à l’intégration continue.
 
 ### English
