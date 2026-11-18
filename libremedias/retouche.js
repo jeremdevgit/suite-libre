@@ -62,6 +62,9 @@
   // ---------- Logos de l'utilisateur (gardés dans ce navigateur) ----------
   let logos = [];
   try { logos = JSON.parse(localStorage.getItem(LOGOS) || "[]"); } catch (e) { logos = []; }
+  // Seules des images intégrées (data:image/…) sont acceptées comme logos
+  const okLogo = (l) => l && typeof l.id === "string" && typeof l.src === "string" && /^data:image\/(png|jpeg|webp|gif);base64,[a-z0-9+/=]+$/i.test(l.src);
+  logos = Array.isArray(logos) ? logos.filter(okLogo) : [];
   const logoImgs = new Map();
   function logoImg(id) {
     if (logoImgs.has(id)) return logoImgs.get(id);
@@ -397,7 +400,17 @@
     $r("fmt").value = P.fmt; $r("q-row").hidden = !f.quality; $r("q").value = P.q; $r("q-o").textContent = P.q + " %";
     $r("bg-row").hidden = f.alpha; $r("bg").value = P.bg;
     $r("facts").textContent = `${W} × ${H} px → ${w} × ${h} px`;
-    $r("logos").innerHTML = logos.map((l) => `<span class="lg"><button class="sw lib" data-logo="${l.id}" title="${esc(l.name)}"><img src="${l.src}" alt=""></button><button class="iconbtn x" data-dellogo="${l.id}" aria-label="${esc(trad("Supprimer ce logo"))}" title="${esc(trad("Supprimer ce logo"))}">×</button></span>`).join("");
+    // Logos lus depuis le stockage du navigateur : éléments construits un par un, jamais en HTML
+    const del = trad("Supprimer ce logo");
+    $r("logos").replaceChildren(...logos.filter(okLogo).map((l) => {
+      const wrap = document.createElement("span"), pick = document.createElement("button"), img = document.createElement("img"), x = document.createElement("button");
+      wrap.className = "lg";
+      pick.className = "sw lib"; pick.dataset.logo = l.id; pick.title = String(l.name || "");
+      img.src = l.src; img.alt = "";
+      x.className = "iconbtn x"; x.dataset.dellogo = l.id; x.title = del; x.setAttribute("aria-label", del); x.textContent = "×";
+      pick.appendChild(img); wrap.append(pick, x);
+      return wrap;
+    }));
   }
   function sync() { $r("undo").disabled = hpos <= 0; $r("redo").disabled = hpos >= hist.length - 1; }
 
