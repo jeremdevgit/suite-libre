@@ -2,7 +2,7 @@
 
 <h1 align="center">Suite Libre</h1>
 
-<p align="center"><b>浏览器里的七个日常工具，无需账号、无追踪：二维码、打码、抠图、图片压缩、单位换算、成绩平均、密码。</b></p>
+<p align="center"><b>浏览器里的五个日常工具，无需账号、无追踪：二维码、照片和视频（修图、抠图、打码、调整尺寸、格式转换）、单位换算、成绩平均、密码。</b></p>
 
 <p align="center"><img src="https://img.shields.io/badge/%F0%9F%93%92%20Productivity%20%26%20data-Browser-1a9a6c?style=flat-square" alt="效率与数据"> <a href="https://github.com/jeremdevgit/suite-libre/releases"><img src="https://img.shields.io/github/v/release/jeremdevgit/suite-libre?include_prereleases&style=flat-square&label=version" alt="version"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-555?style=flat-square" alt="GPL-3.0-or-later"></a></p>
 
@@ -30,16 +30,13 @@
 | 工具 | 用途 |
 |---|---|
 | **LibreRR** | 为链接、邮件、文本、Wi-Fi、电话、短信、名片或位置生成二维码；颜色、渐变、形状、中心 Logo；导出 PNG、SVG、JPEG 或 WEBP |
-| **LibreFlou** | 分享前对人脸、车牌和证件进行模糊、马赛克或遮挡；按原尺寸保存，**不含 GPS 和隐藏信息** |
-| **LibreImage** | 压缩照片（JPEG、WEBP、PNG）、调整尺寸，并**始终移除**位置、相机和拍摄时间；可单张下载或打包 ZIP |
-| **LibreDetour** | 为照片和视频去背景：**JPEG 转透明 PNG**，自动识别主体、框选、纯色/绿幕背景或背景照片；画笔和魔棒；新背景（纯色、渐变、模糊、黑白、图片）、投影、贴纸描边、正方形或快拍构图；批量打包 ZIP。视频：绿幕或固定机位（自动计算背景），导出 WEBM 或透明 PNG 序列 |
+| **LibreMedias** | 一站式照片和视频工具。**修图**：裁剪、旋转、拉直、翻转，光线/对比度/颜色/锐度，滤镜，文字，内置图标库和你自己的标志，水印，像素尺寸。**抠图**：JPEG 转透明 PNG，自动识别主体、框选、纯色/绿幕背景，画笔和魔棒，新背景、投影、贴纸描边，批量 ZIP。**打码**人脸、车牌和证件。批量**压缩与转换**图片。**视频**：绿幕或固定机位，裁剪，像素尺寸，截取片段，WEBM/MP4、GIF 动图或 PNG/JPEG 序列。可导出 PNG、JPEG、WEBP、AVIF、GIF、BMP、TIFF、ICO、PDF，**始终不含**位置、相机和时间信息 |
 | **LibreConvert** | 单位换算、日期间隔（含法国节假日）、时区、十进制/二进制/八进制/十六进制 |
 | **LibreNotes** | 按系数计算各科和总平均分（法国 0–20 分制），算出达到目标所需分数，导出 CSV |
 | **LibrePass** | 生成真正随机的密码或易记的密码短语，并检测你自己密码的强度 |
 
 <p><img src="captures/en/librerr-pc.png" alt="电脑上的 LibreRR" width="72%"> <img src="captures/en/librerr-telephone.png" alt="手机上的 LibreRR" width="22%"></p>
-<p><img src="captures/en/libreflou-pc.png" alt="电脑上的 LibreFlou" width="72%"> <img src="captures/en/libreflou-telephone.png" alt="手机上的 LibreFlou" width="22%"></p>
-<p><img src="captures/en/libredetour-pc.png" alt="电脑上的 LibreDetour" width="72%"> <img src="captures/en/libredetour-telephone.png" alt="手机上的 LibreDetour" width="22%"></p>
+<p><img src="captures/en/libremedias-pc.png" alt="电脑上的 LibreMedias" width="72%"> <img src="captures/en/libremedias-telephone.png" alt="手机上的 LibreMedias" width="22%"></p>
 
 ## 使用
 
@@ -51,12 +48,12 @@
 
 - **数据从不离开你的设备**：没有服务器、Cookie、统计，也不加载其他网站的字体或脚本。
 - 每个页面都有**严格的内容安全策略（CSP）**，阻止一切外部连接；离线文件中的每个脚本都通过其 **SHA-256 哈希**授权，文件被改动后将拒绝运行。
-- LibrePass 使用浏览器的加密随机数生成器（`crypto.getRandomValues`），无偏差；LibreImage、LibreFlou 和 LibreDetour 输出的图片不含元数据。
+- LibrePass 使用浏览器的加密随机数生成器（`crypto.getRandomValues`），无偏差；LibreMedias 输出的图片不含元数据。
 
 ## 构建与托管
 
 ```sh
-python3 construire.py      # Python 3.8+，无依赖 → dist/（7 个离线文件 + SHA256SUMS.txt）
+python3 construire.py      # Python 3.8+，无依赖 → dist/（5 个离线文件 + SHA256SUMS.txt）
 ```
 
 这些工具都是静态页面，任何托管方式都可以；GitHub Pages 请选择 *Deploy from a branch → `main` / 根目录*。文本位于各文件夹的 `textes.js`，以法语文本为键。

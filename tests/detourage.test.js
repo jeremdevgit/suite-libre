@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later — Copyright (C) 2026 jeremdevgit
-// Tests des algorithmes de LibreDetour : node --test tests/
+// Tests des algorithmes de LibreMedias : node --test tests/
 "use strict";
 const test = require("node:test");
 const assert = require("node:assert");
-const D = require("../libredetour/algos.js");
+const D = require("../libremedias/algos.js");
 
 function rng(seed) { let s = seed >>> 0; return () => ((s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296); }
 

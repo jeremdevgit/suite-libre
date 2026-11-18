@@ -2,7 +2,7 @@
 
 <h1 align="center">Suite Libre</h1>
 
-<p align="center"><b>Seven everyday tools in your browser, with no account and no tracking: QR codes, blurring, background removal, photos, conversions, grades, passwords.</b></p>
+<p align="center"><b>Five everyday tools in your browser, with no account and no tracking: QR codes, photos and videos (retouch, background removal, blur, resize, convert), conversions, grades, passwords.</b></p>
 
 <p align="center"><img src="https://img.shields.io/badge/%F0%9F%93%92%20Productivity%20%26%20data-Browser-1a9a6c?style=flat-square" alt="Productivity & data"> <a href="https://github.com/jeremdevgit/suite-libre/releases"><img src="https://img.shields.io/github/v/release/jeremdevgit/suite-libre?include_prereleases&style=flat-square&label=version" alt="version"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-555?style=flat-square" alt="GPL-3.0-or-later"></a></p>
 
@@ -30,16 +30,13 @@ Every tool runs **entirely in your browser**: nothing is sent to a server. Each 
 | Tool | What it does |
 |---|---|
 | **LibreRR** | QR codes for links, email, text, Wi-Fi, phone, SMS, contact cards or places; colors, gradients, shapes, logo; PNG, SVG, JPEG or WEBP export |
-| **LibreFlou** | Blur, pixelate or mask faces, plates and documents before sharing; saved at full size **without GPS or hidden data** |
-| **LibreImage** | Shrink photos (JPEG, WEBP, PNG), resize them and **always strip** location, camera and date; single files or ZIP |
-| **LibreDetour** | Remove the background from photos and videos: **JPEG to transparent PNG**, automatic subject, frame, plain/green background or background photo; brush and magic wand; new background (color, gradient, blur, black and white, image), shadow, sticker outline, square/story framing; batch ZIP. Videos: green screen or fixed camera (background worked out automatically), WEBM or transparent PNG sequence |
+| **LibreMedias** | All-in-one photo and video tool. **Retouch**: crop, rotate, straighten, flip, light/contrast/color/sharpness, filters, text, built-in pictogram library and your own logos, watermark, size in pixels. **Cut out**: JPEG to transparent PNG, automatic subject, frame, plain/green background, brush and magic wand, new background, shadow, sticker outline, batch ZIP. **Blur** faces, plates and documents. **Shrink and convert** images in batches. **Video**: green screen or fixed camera, crop, size in px, trim, WEBM/MP4, animated GIF or PNG/JPEG sequence. Exports to PNG, JPEG, WEBP, AVIF, GIF, BMP, TIFF, ICO, PDF; **always without** location, camera and date |
 | **LibreConvert** | Units, days between dates (with French public holidays), time zones, decimal/binary/octal/hex |
 | **LibreNotes** | Subject and overall averages with coefficients (French 0–20 scale), the grade you need to reach a target, CSV export |
 | **LibrePass** | Truly random passwords or memorable passphrases, and a strength test for your own |
 
 <p><img src="captures/en/librerr-pc.png" alt="LibreRR on a computer" width="72%"> <img src="captures/en/librerr-telephone.png" alt="LibreRR on a phone" width="22%"></p>
-<p><img src="captures/en/libreflou-pc.png" alt="LibreFlou on a computer" width="72%"> <img src="captures/en/libreflou-telephone.png" alt="LibreFlou on a phone" width="22%"></p>
-<p><img src="captures/en/libredetour-pc.png" alt="LibreDetour on a computer" width="72%"> <img src="captures/en/libredetour-telephone.png" alt="LibreDetour on a phone" width="22%"></p>
+<p><img src="captures/en/libremedias-pc.png" alt="LibreMedias on a computer" width="72%"> <img src="captures/en/libremedias-telephone.png" alt="LibreMedias on a phone" width="22%"></p>
 
 ## Use it
 
@@ -51,12 +48,12 @@ Every tool runs **entirely in your browser**: nothing is sent to a server. Each 
 
 - **Nothing leaves your device**: no server, cookies, analytics, or fonts and scripts from other sites.
 - A **strict Content Security Policy** on every page blocks any outside connection; offline files allow each script by its **SHA-256 hash**, so a modified file refuses to run.
-- LibrePass uses the browser's cryptographic generator (`crypto.getRandomValues`) without bias; LibreImage, LibreFlou and LibreDetour output images with no metadata.
+- LibrePass uses the browser's cryptographic generator (`crypto.getRandomValues`) without bias; LibreMedias outputs images with no metadata.
 
 ## Build and host
 
 ```sh
-python3 construire.py      # Python 3.8+, no dependencies → dist/ (7 offline files + SHA256SUMS.txt)
+python3 construire.py      # Python 3.8+, no dependencies → dist/ (5 offline files + SHA256SUMS.txt)
 ```
 
 The tools are static pages, so any host works; for GitHub Pages choose *Deploy from a branch → `main` / root*. Texts live in each folder's `textes.js`, with the French text as key.

@@ -1,17 +1,19 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later — Copyright (C) 2026 jeremdevgit — voir LICENSE */
-// LibreDetour — vidéos : incrustation (fond vert ou uni), caméra fixe (différence avec le fond), aperçu en direct,
+// LibreMedias — vidéos : incrustation (fond vert ou uni), caméra fixe (différence avec le fond), aperçu en direct,
 // enregistrement en vidéo WEBM ou en suite d'images PNG transparentes
 (function () {
   const D = window.Detourage;
   const video = $("video"), cv = $("vcv"), ctx = cv.getContext("2d");
-  const PREF = "libredetour-video-v1";
+  const PREF = "libremedias-video-v1";
   const P = Object.assign({
-    method: "couleur", key: "#00b140", keyAuto: true, tol: 18, soft: 12, spill: 70, dtol: 16, dsoft: 14,
+    method: "aucun", key: "#00b140", keyAuto: true, tol: 18, soft: 12, spill: 70, dtol: 16, dsoft: 14,
     garbage: false, gx: 0.05, gy: 0.05, gw: 0.9, gh: 0.9, clean: 1, shift: 0, feather: 1,
-    bg: "none", bgc: "#ffffff", blur: 40, view: "result", size: 1280, fps: 30, sound: false,
+    bg: "none", bgc: "#ffffff", blur: 40, view: "result", ow: 0, oh: 0, lock: true, crop: null, fmt: "webm", fps: 30, sound: false,
   }, loadPref(PREF, {}));
   const savePrefs = () => savePref(PREF, P);
+  const LM = (window.LM = window.LM || { hooks: {}, tabListeners: [] });
   const AIDE = {
+    aucun: trad("La vidéo est gardée telle quelle : recadre-la, change sa taille ou son format, ou ajoute un flou ou un noir et blanc en fond."),
     couleur: trad("Touche le fond sur l’aperçu pour choisir la couleur à retirer. Un fond bien éclairé, sans plis ni ombres, donne le meilleur résultat."),
     fixe: trad("Pour une vidéo filmée sans bouger la caméra. Le fond est calculé à partir de la vidéo (le sujet doit bouger), ou pris sur une image où le sujet est absent."),
   };
@@ -31,19 +33,27 @@
   let bgImg = null, busy = false;
   const live = () => kind === "camera" || kind === "demo";
 
-  function sizeFor(vw, vh) {
-    const k = Math.min(1, P.size / Math.max(vw, vh));
-    return [Math.max(2, Math.round(vw * k)) & ~1, Math.max(2, Math.round(vh * k)) & ~1];
+  // Zone de la vidéo gardée (recadrage), en pixels de la vidéo
+  function srcRect() {
+    const vw = video.videoWidth, vh = video.videoHeight, c = P.crop || { x: 0, y: 0, w: 1, h: 1 };
+    return [c.x * vw, c.y * vh, Math.max(2, c.w * vw), Math.max(2, c.h * vh)];
+  }
+  // Taille de sortie : celle choisie, sinon la zone gardée (1280 px au plus pour rester fluide)
+  function outDims() {
+    const [, , cw, ch] = srcRect();
+    let w = P.ow || Math.min(cw, (1280 * cw) / Math.max(cw, ch)), h = P.lock || !P.oh ? (w * ch) / cw : P.oh;
+    const big = 3840 * 2160;
+    if (w * h > big) { const k = Math.sqrt(big / (w * h)); w *= k; h *= k; }
+    return [Math.max(2, Math.round(w)) & ~1, Math.max(2, Math.round(h)) & ~1];
   }
   function ensureSize() {
     const vw = video.videoWidth, vh = video.videoHeight;
     if (!vw || !vh) return false;
-    const [w, h] = sizeFor(vw, vh);
+    const [w, h] = outDims();
     if (w === pw && h === ph) return true;
     pw = w; ph = h;
     work = mk(pw, ph); wg = work.getContext("2d", { willReadFrequently: true });
     sub = mk(pw, ph); sg = sub.getContext("2d");
-    cv.width = pw; cv.height = ph;
     alpha = new Float32Array(pw * ph);
     plateData = null;
     return true;
@@ -56,6 +66,7 @@
     url = null;
     video.pause(); video.removeAttribute("src"); video.srcObject = null;
     plateC = null; plateData = null; pw = ph = 0;
+    P.crop = null; P.ratio = "free"; P.ow = 0; P.oh = 0;
   }
   function shown() {
     $("vvide").hidden = true; $("vscene").hidden = false; $("verr").hidden = true;
@@ -114,8 +125,13 @@
     dz.addEventListener("drop", (e) => useFile(e.dataTransfer.files[0]));
   });
   video.addEventListener("loadedmetadata", () => {
+    fillFormats();
     ensureSize();
-    if (kind === "file") { $("vin").value = 0; $("vout").value = (video.duration || 0).toFixed(1); }
+    if (kind === "file") {
+      $("vin").value = 0; $("vout").value = (video.duration || 0).toFixed(1);
+      // Une vidéo en pause n'affiche pas toujours sa première image : petit déplacement pour la décoder
+      try { video.currentTime = 0.001; } catch (e) {}
+    }
     $("vfacts").textContent = `${video.videoWidth} × ${video.videoHeight}` + (kind === "file" && isFinite(video.duration) ? " · " + fmtT(video.duration) : "");
     sync();
   });
@@ -129,7 +145,7 @@
 
   function refreshAutoKey() {
     if (!ensureSize()) return;
-    wg.drawImage(video, 0, 0, pw, ph);
+    { const [sx, sy, sw, sh] = srcRect(); wg.drawImage(video, sx, sy, sw, sh, 0, 0, pw, ph); }
     autoKey = D.borderColor(wg.getImageData(0, 0, pw, ph).data, pw, ph);
     sync();
   }
@@ -138,32 +154,44 @@
   // ---------- Image par image ----------
   function render() {
     if (!ensureSize()) return;
-    const n = pw * ph;
-    wg.drawImage(video, 0, 0, pw, ph);
-    if (P.view === "source") { ctx.clearRect(0, 0, pw, ph); ctx.drawImage(work, 0, 0); drawGarbage(); return; }
+    if (P.view === "crop" && !rec && !busy) { drawCrop(); return; }
+    if (cv.width !== pw || cv.height !== ph) { cv.width = pw; cv.height = ph; }
+    const n = pw * ph, [sx, sy, sw, sh] = srcRect();
+    wg.imageSmoothingEnabled = true; wg.imageSmoothingQuality = "high";
+    wg.drawImage(video, sx, sy, sw, sh, 0, 0, pw, ph);
+    if (P.view === "source" || (P.method === "aucun" && P.view !== "mask")) {
+      ctx.clearRect(0, 0, pw, ph);
+      // Sans détourage, « Flou » et « Noir et blanc » s'appliquent à toute la vidéo
+      const fx = P.view === "source" ? "" : P.bg === "gray" ? "grayscale(1)" : P.bg === "blur" ? `blur(${Math.max(1, (P.blur / 100) * Math.max(pw, ph) * 0.03)}px)` : "";
+      if (fx && canFilter) { ctx.save(); ctx.filter = fx; ctx.drawImage(work, 0, 0); ctx.restore(); } else ctx.drawImage(work, 0, 0);
+      if (P.view === "source") drawGarbage();
+      return;
+    }
     const id = wg.getImageData(0, 0, pw, ph), d = id.data;
     let gray = null;
     if (P.bg === "gray" && P.view === "result") {
       gray = new ImageData(pw, ph);
       for (let i = 0; i < n * 4; i += 4) { const v = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2]; gray.data[i] = gray.data[i + 1] = gray.data[i + 2] = v; gray.data[i + 3] = 255; }
     }
-    if (P.method === "couleur") D.chromaKey(d, n, keyColor(), P.tol / 100, P.soft / 100, P.spill / 100, alpha);
+    if (P.method === "aucun") alpha.fill(1);
+    else if (P.method === "couleur") D.chromaKey(d, n, keyColor(), P.tol / 100, P.soft / 100, P.spill / 100, alpha);
     else if (plateC) {
       if (!plateData) { const t = mk(pw, ph).getContext("2d", { willReadFrequently: true }); t.drawImage(plateC, 0, 0, pw, ph); plateData = t.getImageData(0, 0, pw, ph).data; }
       D.diffKey(d, plateData, n, P.dtol / 100, P.dsoft / 100, alpha);
     } else alpha.fill(1);
-    if (P.garbage) {
+    if (P.garbage && P.method !== "aucun") {
       const x0 = P.gx * pw, y0 = P.gy * ph, x1 = (P.gx + P.gw) * pw, y1 = (P.gy + P.gh) * ph;
       for (let y = 0; y < ph; y++) for (let x = 0; x < pw; x++) if (x < x0 || x > x1 || y < y0 || y > y1) alpha[y * pw + x] = 0;
     }
     const k = Math.max(pw, ph) / 1280;
-    if (P.clean) {
+    if (P.method === "aucun") { /* rien à nettoyer */ }
+    else if (P.clean) {
       const r = Math.max(1, Math.round(P.clean * k));
       D.morph(alpha, pw, ph, -r); D.morph(alpha, pw, ph, r); // ouverture : retire les points isolés
       D.morph(alpha, pw, ph, r); D.morph(alpha, pw, ph, -r); // fermeture : bouche les petits trous
     }
-    if (P.shift) D.morph(alpha, pw, ph, P.shift * k);
-    if (P.feather) D.feather(alpha, pw, ph, P.feather * k);
+    if (P.shift && P.method !== "aucun") D.morph(alpha, pw, ph, P.shift * k);
+    if (P.feather && P.method !== "aucun") D.feather(alpha, pw, ph, P.feather * k);
     if (P.view === "mask") {
       for (let i = 0; i < n; i++) { const v = alpha[i] * 255; d[i * 4] = d[i * 4 + 1] = d[i * 4 + 2] = v; d[i * 4 + 3] = 255; }
       ctx.putImageData(id, 0, 0); drawGarbage(); return;
@@ -183,6 +211,18 @@
     }
     ctx.drawImage(sub, 0, 0);
     if (!rec) drawGarbage();
+  }
+  // Affichage « Recadrer » : la vidéo entière et le cadre gardé
+  function drawCrop() {
+    const vw = video.videoWidth, vh = video.videoHeight, k = Math.min(1, 1280 / Math.max(vw, vh));
+    const w = Math.round(vw * k), h = Math.round(vh * k);
+    if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
+    ctx.drawImage(video, 0, 0, w, h);
+    const c = cdrag ? cdrag.r : P.crop || { x: 0, y: 0, w: 1, h: 1 }, r = cv.getBoundingClientRect(), lw = r.width ? cv.width / r.width : 1;
+    ctx.save();
+    ctx.fillStyle = "rgba(0,0,0,.5)"; ctx.beginPath(); ctx.rect(0, 0, w, h); ctx.rect(c.x * w, c.y * h, c.w * w, c.h * h); ctx.fill("evenodd");
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 2 * lw; ctx.strokeRect(c.x * w, c.y * h, c.w * w, c.h * h);
+    ctx.restore();
   }
   function drawGarbage() {
     if (!P.garbage || rec) return;
@@ -230,15 +270,17 @@
   }
 
   // ---------- Pointeur : pipette ou cadre ----------
-  let gdrag = null;
+  let gdrag = null, cdrag = null;
+  const ratioN = () => { if (P.ratio === "free" || !P.ratio) return 0; const [a, b] = P.ratio.split(":").map(Number); return (a / b) * (video.videoHeight / video.videoWidth); };
   const ptN = (e) => { const r = cv.getBoundingClientRect(); return [Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)), Math.max(0, Math.min(1, (e.clientY - r.top) / r.height))]; };
   cv.addEventListener("pointerdown", (e) => {
     if (!pw || rec) return;
     e.preventDefault();
     const p = ptN(e);
-    if (P.garbage) { try { cv.setPointerCapture(e.pointerId); } catch (err) {} gdrag = { p0: p, r: { x: p[0], y: p[1], w: 0, h: 0 } }; return; }
+    if (P.view === "crop") { try { cv.setPointerCapture(e.pointerId); } catch (err) {} cdrag = { p0: p, r: { x: p[0], y: p[1], w: 0, h: 0 } }; return; }
+    if (P.garbage && P.method !== "aucun") { try { cv.setPointerCapture(e.pointerId); } catch (err) {} gdrag = { p0: p, r: { x: p[0], y: p[1], w: 0, h: 0 } }; return; }
     if (P.method === "couleur") {
-      wg.drawImage(video, 0, 0, pw, ph);
+      { const [sx, sy, sw, sh] = srcRect(); wg.drawImage(video, sx, sy, sw, sh, 0, 0, pw, ph); }
       const x = Math.floor(p[0] * pw), y = Math.floor(p[1] * ph), d = wg.getImageData(Math.max(0, x - 2), Math.max(0, y - 2), 5, 5).data;
       let r = 0, g = 0, b = 0, n = 0;
       for (let i = 0; i < d.length; i += 4) { r += d[i]; g += d[i + 1]; b += d[i + 2]; n++; }
@@ -247,12 +289,25 @@
     }
   });
   cv.addEventListener("pointermove", (e) => {
+    if (cdrag) {
+      const p = ptN(e), a = cdrag.p0, R = ratioN();
+      let w = Math.abs(p[0] - a[0]), h = Math.abs(p[1] - a[1]);
+      if (R) { if (w / h > R) w = h * R; else h = w / R; }
+      cdrag.r = { x: p[0] < a[0] ? a[0] - w : a[0], y: p[1] < a[1] ? a[1] - h : a[1], w, h };
+      rerender(); return;
+    }
     if (!gdrag) return;
     const p = ptN(e), a = gdrag.p0;
     gdrag.r = { x: Math.min(a[0], p[0]), y: Math.min(a[1], p[1]), w: Math.abs(p[0] - a[0]), h: Math.abs(p[1] - a[1]) };
     rerender();
   });
   const endG = () => {
+    if (cdrag) {
+      const r = cdrag.r; cdrag = null;
+      if (r.w > 0.03 && r.h > 0.03) { plateC = null; plateData = null; set({ crop: { x: Math.max(0, r.x), y: Math.max(0, r.y), w: Math.min(r.w, 1 - Math.max(0, r.x)), h: Math.min(r.h, 1 - Math.max(0, r.y)) } }); }
+      else rerender();
+      return;
+    }
     if (!gdrag) return;
     const r = gdrag.r; gdrag = null;
     if (r.w > 0.03 && r.h > 0.03) set({ gx: r.x, gy: r.y, gw: r.w, gh: r.h }); else rerender();
@@ -262,7 +317,7 @@
 
   // ---------- Fond automatique ----------
   async function captureFrame() {
-    const c = mk(pw, ph); c.getContext("2d").drawImage(video, 0, 0, pw, ph); return c;
+    const c = mk(pw, ph), [sx, sy, sw, sh] = srcRect(); c.getContext("2d").drawImage(video, sx, sy, sw, sh, 0, 0, pw, ph); return c;
   }
   const seek = (t) => new Promise((ok) => {
     let done = false;
@@ -289,14 +344,14 @@
         const t0 = Math.max(0, +$("vin").value || 0), t1 = Math.min(video.duration || 0, +$("vout").value || video.duration || 0);
         for (let f = 0; f < F; f++) {
           await seek(t0 + ((t1 - t0) * (f + 0.5)) / F);
-          wg.drawImage(video, 0, 0, pw, ph); frames.push(wg.getImageData(0, 0, pw, ph).data);
+          { const [sx, sy, sw, sh] = srcRect(); wg.drawImage(video, sx, sy, sw, sh, 0, 0, pw, ph); } frames.push(wg.getImageData(0, 0, pw, ph).data);
           bar.firstElementChild.style.width = Math.round(((f + 1) / F) * 100) + "%";
         }
         await seek(was);
       } else {
         for (let f = 0; f < F; f++) {
           await wait(150);
-          wg.drawImage(video, 0, 0, pw, ph); frames.push(wg.getImageData(0, 0, pw, ph).data);
+          { const [sx, sy, sw, sh] = srcRect(); wg.drawImage(video, sx, sy, sw, sh, 0, 0, pw, ph); } frames.push(wg.getImageData(0, 0, pw, ph).data);
           bar.firstElementChild.style.width = Math.round(((f + 1) / F) * 100) + "%";
         }
       }
@@ -331,26 +386,46 @@
     if (!window.MediaRecorder) return null;
     return ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm", "video/mp4;codecs=avc1", "video/mp4"].find((m) => { try { return MediaRecorder.isTypeSupported(m); } catch (e) { return false; } }) || "";
   }
-  const base = () => name.replace(/\.[^.]+$/, "") + "-" + trad("detouree");
-  $("vrec").addEventListener("click", async () => {
+  const base = () => name.replace(/\.[^.]+$/, "") + "-" + trad(P.method === "aucun" ? "modifiee" : "detouree");
+  const RECS = { webm: ["video/webm;codecs=vp9", "video/webm;codecs=vp8", "video/webm"], mp4: ["video/mp4;codecs=avc1", "video/mp4"] };
+  function pickMime(f) {
+    if (!window.MediaRecorder) return null;
+    return (RECS[f] || []).find((m) => { try { return MediaRecorder.isTypeSupported(m); } catch (e) { return false; } }) || null;
+  }
+  // Formats proposés selon le navigateur et la source (une caméra ne peut être qu'enregistrée en direct)
+  function fillFormats() {
+    const opts = [];
+    if (pickMime("webm")) opts.push(["webm", trad("Vidéo WEBM")]);
+    if (pickMime("mp4")) opts.push(["mp4", trad("Vidéo MP4")]);
+    if (!live()) opts.push(["gif", trad("GIF animé")], ["zip-png", trad("Images PNG (ZIP)")], ["zip-jpeg", trad("Images JPEG (ZIP)")]);
+    $("vfmt").innerHTML = opts.map(([v, l]) => `<option value="${v}">${l}</option>`).join("");
+    $("vfmt").value = opts.some((o) => o[0] === P.fmt) ? P.fmt : (opts[0] || [""])[0];
+  }
+  $("vrec").addEventListener("click", () => {
     if (rec || busy || !ensureSize()) return;
-    const mime = pickMime();
-    if (mime === null || !cv.captureStream) { vtoast(trad("L’enregistrement vidéo n’est pas disponible dans ce navigateur : utilise les images PNG.")); return; }
     if (!canSave()) { vtoast(trad("Le téléchargement n’est pas disponible ici.")); return; }
+    const f = $("vfmt").value;
+    if (f === "webm" || f === "mp4") recordVideo(f);
+    else if (f) exportFrames(f);
+  });
+  async function recordVideo(f) {
+    const mime = pickMime(f);
+    if (!mime || !cv.captureStream) { vtoast(trad("L’enregistrement vidéo n’est pas disponible dans ce navigateur : utilise les images PNG.")); return; }
     const prevView = P.view;
-    P.view = "result";
-    const tracks = [...cv.captureStream(kind === "file" ? 30 : 30).getVideoTracks(), ...audioTracks()];
+    P.view = "result"; render();
+    const tracks = [...cv.captureStream(30).getVideoTracks(), ...audioTracks()];
     const chunks = [];
     let r;
-    try { r = new MediaRecorder(new MediaStream(tracks), mime ? { mimeType: mime, videoBitsPerSecond: 8e6 } : {}); }
+    try { r = new MediaRecorder(new MediaStream(tracks), { mimeType: mime, videoBitsPerSecond: Math.max(2e6, Math.min(16e6, pw * ph * 5)) }); }
     catch (e) { P.view = prevView; vtoast(trad("L’enregistrement vidéo n’est pas disponible dans ce navigateur : utilise les images PNG.")); return; }
     r.ondataavailable = (e) => { if (e.data && e.data.size) chunks.push(e.data); };
     const t0 = Math.max(0, +$("vin").value || 0);
     recEnd = Math.min(video.duration || Infinity, +$("vout").value || Infinity);
     const started = performance.now();
     rec = { r, prevView, started, t0 };
+    let timer = 0;
     r.onstop = async () => {
-      const type = (r.mimeType || mime || "video/webm").split(";")[0];
+      const type = (r.mimeType || mime).split(";")[0];
       const blob = new Blob(chunks, { type });
       P.view = rec.prevView; rec = null; clearInterval(timer);
       $("vprogress").hidden = true; sync(); render();
@@ -359,7 +434,7 @@
     };
     if (kind === "file") { video.pause(); await seek(t0); }
     $("vprogress").hidden = false;
-    const timer = setInterval(() => {
+    timer = setInterval(() => {
       if (!rec) return;
       const p = kind === "file" ? (video.currentTime - t0) / Math.max(0.1, recEnd - t0) : 0;
       $("vprogress").firstElementChild.style.width = kind === "file" ? Math.round(Math.min(1, p) * 100) + "%" : "100%";
@@ -369,7 +444,7 @@
     sync();
     if (kind === "file") { video.play().catch(() => stopRec()); video.addEventListener("ended", stopRec, { once: true }); }
     else if (video.paused) video.play().catch(() => {});
-  });
+  }
   function stopRec() {
     if (!rec) return;
     if (kind === "file") video.pause();
@@ -377,32 +452,44 @@
   }
   $("vstop").addEventListener("click", () => { cancel = true; stopRec(); });
 
-  $("vpng").addEventListener("click", async () => {
-    if (rec || busy || kind !== "file" || !ensureSize()) return;
-    if (!canSave()) { vtoast(trad("Le téléchargement n’est pas disponible ici.")); return; }
+  // Image par image : GIF animé, ou suite d'images PNG / JPEG dans un ZIP
+  async function exportFrames(f) {
+    if (kind !== "file") return;
     const t0 = Math.max(0, +$("vin").value || 0), t1 = Math.min(video.duration || 0, +$("vout").value || video.duration || 0);
-    const fps = P.fps, count = Math.max(1, Math.floor((t1 - t0) * fps));
+    const fps = f === "gif" ? Math.min(P.fps, 25) : P.fps, count = Math.max(1, Math.floor((t1 - t0) * fps));
     busy = true; cancel = false; sync();
     video.pause();
     const prevView = P.view; P.view = "result";
-    const bar = $("vprogress"), files = [];
+    const bar = $("vprogress"), files = [], frames = [];
+    // GIF : 640 px au plus, sinon le fichier devient énorme
+    const gk = Math.min(1, 640 / Math.max(pw, ph)), gw = Math.max(1, Math.round(pw * gk)), gh = Math.max(1, Math.round(ph * gk));
+    const gc = f === "gif" ? mk(gw, gh) : null, gg = gc && gc.getContext("2d", { willReadFrequently: true });
     bar.hidden = false; $("vstop").hidden = false;
     try {
       for (let i = 0; i < count && !cancel; i++) {
         await seek(t0 + i / fps);
         render();
-        const blob = await new Promise((ok) => cv.toBlob(ok, "image/png"));
-        files.push({ name: base() + "/" + String(i + 1).padStart(5, "0") + ".png", blob });
+        if (gc) { gg.clearRect(0, 0, gw, gh); gg.drawImage(cv, 0, 0, gw, gh); frames.push({ rgba: gg.getImageData(0, 0, gw, gh).data, delay: 1000 / fps }); }
+        else {
+          const id = f === "zip-png" ? "png" : "jpeg";
+          files.push({ name: base() + "/" + String(i + 1).padStart(5, "0") + "." + Formats.ext(id), blob: await Formats.save(cv, id, 0.9, P.bgc) });
+        }
         bar.firstElementChild.style.width = Math.round(((i + 1) / count) * 100) + "%";
         $("vout-hint").textContent = trad("Image {i} sur {n}", { i: i + 1, n: count });
       }
-      if (!cancel && files.length) {
-        const s = await saveFile(base() + "-png.zip", await window.LibreZip(files));
+      if (!cancel && gc && frames.length) {
+        $("vout-hint").textContent = trad("Création du GIF…");
+        await new Promise((ok) => setTimeout(ok, 30));
+        const blob = new Blob([Formats.encodeGIF(frames, gw, gh)], { type: "image/gif" });
+        const s = await saveFile(base() + ".gif", blob);
+        if (s === "saved") vtoast(trad("Image enregistrée."));
+      } else if (!cancel && files.length) {
+        const s = await saveFile(base() + "-" + f.slice(4) + ".zip", await window.LibreZip(files));
         if (s === "saved") vtoast(trad("Archive enregistrée."));
       }
     } catch (err) { vtoast(saveErrorText(err)); }
     P.view = prevView; busy = false; bar.hidden = true; $("vstop").hidden = true; sync(); render();
-  });
+  }
   $("vframe").addEventListener("click", async () => {
     if (!ensureSize()) return;
     if (!canSave()) { vtoast(trad("Le téléchargement n’est pas disponible ici.")); return; }
@@ -431,6 +518,10 @@
     $("vmethod-hint").textContent = AIDE[P.method];
     $("vm-couleur").hidden = P.method !== "couleur";
     $("vm-fixe").hidden = P.method !== "fixe";
+    $("vgarbage").closest("label").hidden = P.method === "aucun";
+    $("vedges").hidden = P.method === "aucun";
+    $("vbgs-title").textContent = P.method === "aucun" ? trad("Effet") : trad("Nouveau fond");
+    document.querySelectorAll('#vbgs [data-vbg="color"], #vbgs [data-vbg="image"]').forEach((b) => (b.hidden = P.method === "aucun"));
     const kc = toHex(...keyColor());
     $("vkeysw").style.background = kc; $("vkey").value = kc;
     $("vkey-auto").setAttribute("aria-pressed", String(P.keyAuto));
@@ -442,16 +533,17 @@
     $("vbg-color-row").hidden = P.bg !== "color"; $("vbgc").value = P.bgc;
     $("vblur-row").hidden = P.bg !== "blur"; out("vblur", "blur", P.blur + " %");
     $("vbgimg-row").hidden = P.bg !== "image"; $("vbgimg-name").textContent = bgImg ? bgImg.label : "";
-    $("vsize").value = P.size; $("vfps").value = P.fps; $("vsound").checked = P.sound;
+    $("vfps").value = P.fps; $("vsound").checked = P.sound; $("vratio").value = P.ratio || "free"; $("vlock").checked = P.lock;
+    if (video.videoWidth) { const [w, h] = outDims(); if (document.activeElement !== $("vow")) $("vow").value = w; if (document.activeElement !== $("voh")) $("voh").value = h; }
     const file = kind === "file", work = !!rec || busy;
     $("vplay").textContent = video.paused ? trad("Lecture") : trad("Pause");
     $("vplay").hidden = !kind; $("vseek").hidden = !file; $("vsound").closest("label").hidden = !file;
-    $("vpng").hidden = !file; $("vin").closest(".f").hidden = !file; $("vout").closest(".f").hidden = !file; $("vfps").closest(".f").hidden = !file;
-    ["vrec", "vpng", "vframe", "vplate-auto", "vplate-now"].forEach((id) => ($(id).disabled = !kind || work));
-    $("vrec").textContent = file ? trad("Enregistrer la vidéo") : trad("Démarrer l’enregistrement");
+    $("vin").closest(".f").hidden = !file; $("vout").closest(".f").hidden = !file; $("vfps").closest(".f").hidden = !file;
+    ["vrec", "vframe", "vplate-auto", "vplate-now"].forEach((id) => ($(id).disabled = !kind || work));
+    $("vrec").textContent = file ? trad("Enregistrer") : trad("Démarrer l’enregistrement");
     $("vstop").hidden = !(rec || (busy && !$("vprogress").hidden && kind === "file"));
-    if (!rec && !busy) $("vout-hint").textContent = P.bg === "none" ? trad("Fond transparent : les images PNG gardent la transparence ; dans une vidéo WEBM, elle dépend du navigateur.") : "";
-    cv.style.cursor = P.garbage ? "crosshair" : P.method === "couleur" ? "copy" : "default";
+    if (!rec && !busy) $("vout-hint").textContent = P.bg === "none" && P.method !== "aucun" ? trad("Fond transparent : les images PNG gardent la transparence ; dans une vidéo WEBM, elle dépend du navigateur.") : "";
+    cv.style.cursor = P.view === "crop" || (P.garbage && P.method !== "aucun") ? "crosshair" : P.method === "couleur" ? "copy" : "default";
     syncTime();
   }
   function set(patch) { Object.assign(P, patch); savePrefs(); sync(); rerender(); }
@@ -465,10 +557,30 @@
   $("vgarbage").addEventListener("input", () => set({ garbage: $("vgarbage").checked }));
   $("vbgc").addEventListener("input", () => set({ bgc: $("vbgc").value }));
   $("vbgimg-btn").addEventListener("click", () => $("vbgfile").click());
-  $("vsize").addEventListener("input", () => { P.size = +$("vsize").value; savePrefs(); pw = ph = 0; ensureSize(); rerender(); });
+  // Recadrage et dimensions
+  const resize = (patch) => { Object.assign(P, patch); savePrefs(); pw = ph = 0; plateC = null; plateData = null; ensureSize(); sync(); rerender(); };
+  $("vratio").addEventListener("input", () => {
+    P.ratio = $("vratio").value;
+    if (P.ratio === "free" || !video.videoWidth) { resize({}); return; }
+    const R = ratioN();
+    let w = 1, h = 1 / R; if (h > 1) { h = 1; w = R; }
+    resize({ crop: { x: (1 - w) / 2, y: (1 - h) / 2, w, h }, view: "crop" });
+  });
+  $("vcrop-reset").addEventListener("click", () => resize({ crop: null, ratio: "free" }));
+  $("vow").addEventListener("change", () => { const [, , cw, ch] = srcRect(), w = Math.max(2, +$("vow").value || 2); resize({ ow: w, oh: P.lock ? 0 : outDims()[1] }); });
+  $("voh").addEventListener("change", () => { const [, , cw, ch] = srcRect(), h = Math.max(2, +$("voh").value || 2); resize(P.lock ? { ow: (h * cw) / ch, oh: 0 } : { oh: h, ow: outDims()[0] }); });
+  $("vlock").addEventListener("input", () => resize({ lock: $("vlock").checked, oh: $("vlock").checked ? 0 : outDims()[1] }));
+  $("vsizes").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-s]"); if (!b || !video.videoWidth) return;
+    const [, , cw, ch] = srcRect(), v = b.dataset.s;
+    if (v === "orig") resize({ ow: cw, oh: 0, lock: true });
+    else { const k = +v / Math.max(cw, ch); resize({ ow: cw * k, oh: 0, lock: true }); }
+  });
+  $("vfmt").addEventListener("input", () => { P.fmt = $("vfmt").value; savePrefs(); });
   $("vfps").addEventListener("input", () => { P.fps = +$("vfps").value; savePrefs(); });
 
-  setupTabs($("ptabs"), (tab) => {
+  fillFormats();
+  LM.tabListeners.push((tab) => {
     if (tab !== "video" && !video.paused && !rec) video.pause();
     if (tab === "video" && !video.paused) loop();
   });

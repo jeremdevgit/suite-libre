@@ -1,16 +1,17 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later — Copyright (C) 2026 jeremdevgit — voir LICENSE */
-// LibreDetour — photos : détourage, retouche, nouveau fond, cadrage, enregistrement (une photo ou un ZIP)
+// LibreMedias — photos : détourage, retouche, nouveau fond, cadrage, enregistrement (une photo ou un ZIP)
 (function () {
   enableDownloads();
   const D = window.Detourage;
   const cv = $("cv"), ctx = cv.getContext("2d");
-  const PREF = "libredetour-photo-v1";
+  const PREF = "libremedias-photo-v1";
+  const LM = (window.LM = window.LM || { hooks: {}, tabListeners: [] });
   const P = Object.assign({
     method: "auto", quality: 512, key: "#00b140", keyAuto: true, tol: 16, soft: 12, spill: 60, dtol: 14, dsoft: 12,
     tool: "brush", act: "remove", brush: 40, wtol: 12,
     fine: true, shift: 0, feather: 1, islands: true, single: false, holes: false, decont: true,
     bg: "none", bgc1: "#ffffff", bgc2: "#cfd9ff", blur: 40, shadow: false, shadowk: 45, outline: false, outc: "#ffffff", outw: 10,
-    format: "image", margin: 8, maxsize: 0, fmt: "image/png", view: "result", compare: 50,
+    format: "image", margin: 8, maxsize: 0, fmt: "png", view: "result", compare: 50,
   }, loadPref(PREF, {}));
   const savePrefs = () => savePref(PREF, P);
   const WORK = 1600, MAXPIX = 16777216;
@@ -230,7 +231,7 @@
     } else if (P.bg === "image" && bgImg) {
       const s = Math.max(ow / bgImg.width, oh / bgImg.height);
       g.drawImage(bgImg, (ow - bgImg.width * s) / 2, (oh - bgImg.height * s) / 2, bgImg.width * s, bgImg.height * s);
-    } else if (full && P.fmt === "image/jpeg") fill("#ffffff");
+    } else if (full && opaqueFmt()) fill("#ffffff");
 
     // Contour autocollant, puis ombre sous l'ensemble
     let T = S;
@@ -352,7 +353,7 @@
       f.width = Math.max(1, Math.round(c.width * k)); f.height = Math.max(1, Math.round(c.height * k));
       const g = f.getContext("2d");
       g.imageSmoothingQuality = "high";
-      if (P.fmt === "image/jpeg" && P.bg === "none") { g.fillStyle = "#fff"; g.fillRect(0, 0, f.width, f.height); }
+      if (opaqueFmt() && P.bg === "none") { g.fillStyle = "#fff"; g.fillRect(0, 0, f.width, f.height); }
       g.drawImage(c, 0, 0, f.width, f.height);
       // Taille réelle du fichier enregistré
       const s = it.W / it.ww;
@@ -614,7 +615,7 @@
         if (!first) first = it;
       } catch (e) {
         URL.revokeObjectURL(url);
-        const msg = heic ? trad("Ce navigateur ne sait pas lire le HEIC. Ouvre LibreDetour dans Safari, ou règle l’iPhone sur « Le plus compatible » (Réglages › Appareil photo › Formats).") : trad("Ce fichier n’a pas pu être lu comme une image.");
+        const msg = heic ? trad("Ce navigateur ne sait pas lire le HEIC. Ouvre LibreMedias dans Safari, ou règle l’iPhone sur « Le plus compatible » (Réglages › Appareil photo › Formats).") : trad("Ce fichier n’a pas pu être lu comme une image.");
         if (cur) showErr(msg); else toast(msg);
       }
     }
@@ -653,22 +654,21 @@
   });
 
   // ---------- Enregistrement ----------
-  const EXT = { "image/png": "png", "image/jpeg": "jpg", "image/webp": "webp", mask: "png" };
   const toBlob = (c, type) => new Promise((ok) => c.toBlob(ok, type, 0.92));
-  const outName = (it) => it.name.replace(/\.[^.]+$/, "") + "-" + trad(P.fmt === "mask" ? "masque" : "detoure") + "." + EXT[P.fmt];
+  const outName = (it) => it.name.replace(/\.[^.]+$/, "") + "-" + trad(P.fmt === "mask" ? "masque" : "detoure") + "." + (P.fmt === "mask" ? "png" : Formats.ext(P.fmt));
   async function renderFile(it) {
     const c = P.fmt === "mask" ? compose(it, true, true, true) : compose(it, true, true);
-    return toBlob(c, P.fmt === "mask" ? "image/png" : P.fmt);
+    return Formats.save(c, P.fmt === "mask" ? "png" : P.fmt, 0.92, "#ffffff");
   }
   on("dl", "click", async () => {
     if (!cur || !cur.alpha) return;
     if (!canSave()) { toast(trad("Le téléchargement n’est pas disponible ici : utilise Copier l’image.")); return; }
     setBusy(true); await tick();
-    const blob = await renderFile(cur);
+    let blob = null;
+    try { blob = await renderFile(cur); } catch (e) { setBusy(false); toast(trad("Ce navigateur ne sait pas créer ce format : choisis-en un autre.")); return; }
     setBusy(false);
     if (!blob) { toast(trad("L’image n’a pas pu être créée.")); return; }
     let name = outName(cur);
-    if (blob.type !== (P.fmt === "mask" ? "image/png" : P.fmt)) name = name.replace(/\.\w+$/, ".png");
     try { const s = await saveFile(name, blob); if (s === "saved") toast(trad("Image enregistrée.")); } catch (err) { toast(saveErrorText(err)); }
   });
   on("copy", "click", async () => {
@@ -697,12 +697,24 @@
         if (it !== keep) release(it);
       }
       bar.firstElementChild.style.width = "100%";
-      const s = await saveFile("libredetour.zip", await makeZip(files));
+      const s = await saveFile("libremedias.zip", await makeZip(files));
       if (s === "saved") toast(trad("Archive enregistrée."));
     } catch (err) { toast(saveErrorText(err)); }
     bar.hidden = true; $("zip").disabled = false; renderThumbs();
   });
 
+  const opaqueFmt = () => P.fmt !== "mask" && !Formats.byId(P.fmt).alpha;
+  if (P.fmt.includes("/")) P.fmt = "png";
+  Formats.fill($("fmt"), null, P.fmt);
+  $("fmt").insertAdjacentHTML("beforeend", `<option value="mask">${trad("Masque noir et blanc (PNG)")}</option>`);
+  $("fmt").value = P.fmt;
+  // Passage vers les autres onglets
+  LM.hooks.photo = (f) => addFiles([f]);
+  on("to-retouche", "click", async () => {
+    if (!cur || !cur.alpha || !LM.hooks.retouche) return;
+    const b = await toBlob(compose(cur, true, true), "image/png");
+    LM.show("retouche"); LM.hooks.retouche(new File([b], cur.name.replace(/\.[^.]+$/, "") + "-" + trad("detoure") + ".png", { type: "image/png" }));
+  });
   onSaveReady(syncPanel);
 
   // ---------- Exemple de départ ----------

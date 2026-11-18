@@ -1,18 +1,20 @@
 # Historique des versions
 
-## 1.2.0 — 2026-11-18 — LibreDetour
+## 2.0.0 — 2026-11-18 — LibreMedias
 
-- **Nouvel outil LibreDetour** : détourage de photos et de vidéos, entièrement dans le navigateur, sans dépendance ni réseau.
-  - Photos : JPEG en PNG ou WEBP transparent ; méthodes Automatique (GrabCut : modèles de couleurs et coupe minimale de graphe), Cadre, Fond uni (pipette, anti-reflet) et Photo du fond (différence avec une photo sans le sujet).
-  - Retouche au pinceau et à la baguette magique (Garder / Retirer), annuler / rétablir, vues Résultat, Retouche, Masque et Avant / après.
-  - Bords : bords fins (filtre guidé, cheveux), rétrécir / élargir, adoucir, retrait des petites taches, sujet unique, trous bouchés, correction du liseré de couleur du fond.
-  - Nouveau fond : couleur, dégradé, flou du fond d’origine, noir et blanc (sujet en couleur), image ; ombre portée, contour autocollant ; cadrage ajusté au sujet, carré, 4:5, 9:16, 16:9, 3:2, taille maximale ; export masque noir et blanc ; plusieurs photos détourées d’un coup en ZIP.
-  - Vidéos : fond vert ou uni (pipette sur l’aperçu), caméra fixe avec fond calculé automatiquement (médiane des images) ou pris sur une image, cadre de limitation ; caméra en direct ; enregistrement WEBM avec le son, suite d’images PNG transparentes en ZIP, image actuelle en PNG ; début et fin.
-- Tests des algorithmes (`node --test tests/*.test.js`) ajoutés à l’intégration continue.
+- **Nouvel outil LibreMedias**, l’outil photo et vidéo tout-en-un. Il **remplace LibreFlou et LibreImage**, qui deviennent ses onglets Flouter et Alléger et convertir. Tout se passe dans le navigateur, sans dépendance ni réseau.
+  - **Retoucher** : recadrage (libre ou proportions fixes), rotation, miroir, redressement ; luminosité, contraste, exposition, saturation, température, teinte, netteté, vignette ; filtres (noir et blanc, sépia, vintage, chaud, froid, vif, doux, dramatique, mat) ; texte (5 polices, contour, bandeau, ombre) ; bibliothèque de 36 pictogrammes dessinés pour LibreMedias et logos personnels gardés dans le navigateur ; filigrane répété ; largeur et hauteur en pixels ; annuler / rétablir.
+  - **Détourer** : JPEG en PNG ou WEBP transparent ; méthodes Automatique (GrabCut : modèles de couleurs et coupe minimale de graphe), Cadre, Fond uni (pipette, anti-reflet) et Photo du fond ; pinceau et baguette magique ; bords fins, rétrécir / élargir, adoucir, taches, trous, liseré de couleur ; nouveau fond (couleur, dégradé, flou, noir et blanc, image), ombre portée, contour autocollant ; cadrages carré, 4:5, 9:16, 16:9, 3:2 ; masque noir et blanc ; lot en ZIP.
+  - **Flouter** (ancien LibreFlou) et **Alléger et convertir** (ancien LibreImage), avec les nouveaux formats.
+  - **Vidéo** : sans détourage, fond vert ou uni, caméra fixe avec fond calculé automatiquement ; caméra en direct ; recadrage, largeur et hauteur en pixels, début et fin ; enregistrement WEBM ou MP4 avec le son, GIF animé, suite d’images PNG ou JPEG en ZIP, image actuelle.
+  - **Choix du format d’export** partout : PNG, JPEG, WEBP, AVIF (selon le navigateur), GIF, BMP, TIFF, ICO (16 à 256 px) et PDF, sans métadonnées.
+  - Passage d’une image d’un onglet à l’autre (détourer puis retoucher, retoucher puis flouter…).
+- LibreFlou et LibreImage sont retirés de la suite et de la page d’accueil.
+- Tests des algorithmes et des encodeurs (`node --test tests/*.test.js`) ajoutés à l’intégration continue.
 
 ### English
 
-- **New tool LibreDetour**: background removal for photos and videos, fully in the browser. Automatic subject, frame, plain/green background and background-photo methods; brush and magic wand retouching; fine edges, decontamination; new backgrounds, shadow, sticker outline, social-media framing; batch ZIP. Videos: green screen or fixed camera with automatic background, live camera, WEBM recording or transparent PNG sequence.
+- **New tool LibreMedias**, the all-in-one photo and video tool, **replacing LibreFlou and LibreImage** (now its Blur and Shrink & convert tabs): retouching (crop, rotate, straighten, adjustments, filters, text, pictogram library and your own logos, watermark, size in pixels), background removal for photos and videos, blurring, batch compression and conversion, video crop/resize/trim with WEBM, MP4, animated GIF or image-sequence export. Export format choice everywhere: PNG, JPEG, WEBP, AVIF, GIF, BMP, TIFF, ICO, PDF.
 
 ## 1.1.1 — 2026-11-07 — Sécurité
 

@@ -1,10 +1,16 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later — Copyright (C) 2026 jeremdevgit — voir LICENSE */
 (function () {
+  // LibreMedias — onglet Alléger et convertir (ancien LibreImage) : identifiants préfixés « i- »
+  const $ = (id) => document.getElementById("i-" + id);
+  let toastT = 0;
+  const toast = (t) => { const el = $("toast"); el.textContent = t; clearTimeout(toastT); toastT = setTimeout(() => (el.textContent = ""), 4000); };
+  const LM = (window.LM = window.LM || { hooks: {}, tabListeners: [] });
+  const visible = () => !document.querySelector('[data-pane="convertir"]').hidden;
   enableDownloads();
   const items = []; // {id, name, file, size, w, h, meta, img, out:{blob,url,w,h}, example}
   let uid = 0;
   const fmtSize = (b) => (b < 1024 ? trad("{n} o", { n: b }) : b < 1048576 ? trad("{n} Ko", { n: nf(b / 1024, 0) }) : trad("{n} Mo", { n: nf(b / 1048576, 1) }));
-  const EXT = { "image/jpeg": "jpg", "image/webp": "webp", "image/png": "png", "image/gif": "gif" };
+  const IDS = { "image/jpeg": "jpeg", "image/webp": "webp", "image/png": "png", "image/gif": "gif", "image/bmp": "bmp", "image/tiff": "tiff", "image/avif": "avif" };
 
   // ---------- Lecture EXIF (JPEG) ----------
   async function readMeta(file) {
@@ -71,7 +77,7 @@
       await process(it);
     } catch (e) {
       it.error = /\.(heic|heif)$/i.test(it.name) || /hei[cf]/.test(file.type)
-        ? trad("Ce navigateur ne sait pas lire le HEIC. Ouvre LibreImage dans Safari, ou règle l’iPhone sur « Le plus compatible » (Réglages › Appareil photo › Formats).")
+        ? trad("Ce navigateur ne sait pas lire le HEIC. Ouvre LibreMedias dans Safari, ou règle l’iPhone sur « Le plus compatible » (Réglages › Appareil photo › Formats).")
         : trad("Ce fichier n’a pas pu être lu comme une image.");
     }
     render();
@@ -87,7 +93,9 @@
   ["dragenter", "dragover"].forEach((ev) => dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.add("over"); }));
   ["dragleave", "drop"].forEach((ev) => dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.remove("over"); }));
   dz.addEventListener("drop", (e) => addFiles(e.dataTransfer.files));
+  LM.hooks.convertir = (f) => addFiles([f]);
   document.addEventListener("paste", (e) => {
+    if (!visible()) return;
     const files = [...(e.clipboardData?.items || [])].filter((i) => i.type.startsWith("image/")).map((i) => i.getAsFile());
     if (files.length) addFiles(files);
   });
@@ -112,21 +120,22 @@
   function outType(it) {
     const f = $("fmt").value;
     if (f !== "same") return f;
-    return ["image/jpeg", "image/png", "image/webp"].includes(it.file.type) ? it.file.type : "image/png";
+    return IDS[it.file.type] && Formats.support[IDS[it.file.type]] !== false ? IDS[it.file.type] : "png";
   }
   async function process(it) {
     if (!it.img) return;
     const [w, h] = target(it.w, it.h), type = outType(it);
     const c = document.createElement("canvas"); c.width = w; c.height = h;
     const ctx = c.getContext("2d");
-    if (type === "image/jpeg") { ctx.fillStyle = $("bg").value; ctx.fillRect(0, 0, w, h); }
     ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = "high";
     ctx.drawImage(it.img, 0, 0, w, h);
-    const blob = await new Promise((ok) => c.toBlob(ok, type, +$("q").value / 100));
+    const blob = await Formats.save(c, type, +$("q").value / 100, $("bg").value);
     if (!blob) throw new Error("encode");
     if (it.out?.url) URL.revokeObjectURL(it.out.url);
-    const realType = blob.type || type;
-    it.out = { blob, url: URL.createObjectURL(blob), w, h, type: realType };
+    // Aperçu : les formats que le navigateur n'affiche pas (TIFF, PDF, ICO) sont montrés en PNG
+    const shows = ["png", "jpeg", "webp", "gif", "bmp", "avif"].includes(type);
+    const view = shows ? blob : await new Promise((ok) => c.toBlob(ok, "image/png"));
+    it.out = { blob, url: URL.createObjectURL(view), w, h, type };
   }
   let timer = 0;
   function reprocessAll() {
@@ -137,7 +146,7 @@
   // ---------- Affichage ----------
   function outName(it) {
     const base = it.name.replace(/\.[^.]+$/, "");
-    return base + "-libreimage." + (EXT[it.out.type] || "png");
+    return base + "-" + trad("allege") + "." + Formats.ext(it.out.type);
   }
   function render() {
     const box = $("results");
@@ -156,7 +165,7 @@
       const save = canSave() ? `<button class="btn small primary" data-dl="${it.id}">${trad("Télécharger")}</button>` : `<span class="hint">${trad("Clic droit sur l’aperçu › Enregistrer l’image")}</span>`;
       return `<div class="res"><div class="pic"><img src="${it.out.url}" alt="${esc(trad("Aperçu de {nom}", { nom: it.name }))}"></div><div class="body">
         <div class="name">${esc(it.name)}</div>
-        <div class="facts"><span>${it.w}×${it.h} → ${it.out.w}×${it.out.h}</span><span>${fmtSize(it.size)} → ${fmtSize(it.out.blob.size)}</span><span>${(EXT[it.out.type] || "").toUpperCase()}</span></div>
+        <div class="facts"><span>${it.w}×${it.h} → ${it.out.w}×${it.out.h}</span><span>${fmtSize(it.size)} → ${fmtSize(it.out.blob.size)}</span><span>${Formats.ext(it.out.type).toUpperCase()}</span></div>
         <div class="tags">${tags.join("")}</div>
         <div class="acts">${save}<button class="btn small" data-rm="${it.id}">${trad("Retirer")}</button></div></div></div>`;
     }).join("");
@@ -205,19 +214,21 @@
   $("zip").addEventListener("click", async () => {
     const done = items.filter((i) => i.out), used = new Set();
     const files = done.map((it) => { let n = outName(it), k = 2; while (used.has(n)) n = n.replace(/(-\d+)?(\.\w+)$/, "-" + k++ + "$2"); used.add(n); return { name: n, blob: it.out.blob }; });
-    try { const s = await saveFile("libreimage.zip", await makeZip(files)); if (s === "saved") toast(trad("Archive enregistrée.")); } catch (err) { toast(saveErrorText(err)); }
+    try { const s = await saveFile("libremedias-images.zip", await makeZip(files)); if (s === "saved") toast(trad("Archive enregistrée.")); } catch (err) { toast(saveErrorText(err)); }
   });
 
   // ---------- Réglages ----------
-  const PREF = "libreimage-reglages-v1";
+  const PREF = "libremedias-alleger-v1";
+  Formats.fill($("fmt"), null, "jpeg");
+  $("fmt").insertAdjacentHTML("afterbegin", `<option value="same">${trad("Identique à l’original")}</option>`);
   const ids = ["fmt", "q", "bg", "rmode", "rval"];
   const saved = loadPref(PREF, null);
   if (saved) ids.forEach((id) => { if (saved[id] != null) $(id).value = saved[id]; });
   function syncUI() {
     $("q-o").textContent = $("q").value + " %";
-    const png = $("fmt").value === "image/png";
-    $("q").disabled = png;
-    $("bg-row").hidden = $("fmt").value !== "image/jpeg";
+    const f = $("fmt").value === "same" ? null : Formats.byId($("fmt").value);
+    $("q").disabled = !!f && !f.quality;
+    $("bg-row").hidden = !f || f.alpha;
     const m = $("rmode").value;
     $("rval-wrap").hidden = $("presets").hidden = m === "none";
     if (m === "pct") $("presets").hidden = true;

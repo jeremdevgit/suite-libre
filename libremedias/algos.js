@@ -1,5 +1,5 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later — Copyright (C) 2026 jeremdevgit — voir LICENSE */
-// LibreDetour : algorithmes de détourage, sans dépendance et sans réseau.
+// LibreMedias : algorithmes de détourage, sans dépendance et sans réseau.
 // - Sujet automatique / cadre : GrabCut (modèles de couleurs + coupe minimale de graphe, algorithme de Boykov-Kolmogorov)
 // - Fond uni ou fond vert : incrustation par distance de chrominance, avec suppression du débordement de couleur
 // - Fond connu : différence avec une image du fond seul

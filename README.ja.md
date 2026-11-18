@@ -2,7 +2,7 @@
 
 <h1 align="center">Suite Libre</h1>
 
-<p align="center"><b>アカウント不要・トラッキングなしのブラウザーツール 7 種：QR コード、ぼかし、背景の切り抜き、写真、単位換算、成績平均、パスワード。</b></p>
+<p align="center"><b>アカウント不要・トラッキングなしのブラウザーツール 5 種：QR コード、写真と動画（レタッチ・切り抜き・ぼかし・サイズ変更・変換）、単位換算、成績平均、パスワード。</b></p>
 
 <p align="center"><img src="https://img.shields.io/badge/%F0%9F%93%92%20Productivity%20%26%20data-Browser-1a9a6c?style=flat-square" alt="生産性とデータ"> <a href="https://github.com/jeremdevgit/suite-libre/releases"><img src="https://img.shields.io/github/v/release/jeremdevgit/suite-libre?include_prereleases&style=flat-square&label=version" alt="version"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-555?style=flat-square" alt="GPL-3.0-or-later"></a></p>
 
@@ -30,16 +30,13 @@
 | ツール | できること |
 |---|---|
 | **LibreRR** | リンク、メール、テキスト、Wi-Fi、電話、SMS、連絡先、場所の QR コード。色、グラデーション、形、ロゴ。PNG、SVG、JPEG、WEBP で書き出し |
-| **LibreFlou** | 共有前に顔、ナンバープレート、書類をぼかす・モザイク・塗りつぶし。元のサイズのまま、**GPS や隠れた情報なしで**保存 |
-| **LibreImage** | 写真を軽量化（JPEG、WEBP、PNG）・リサイズし、位置情報・カメラ・撮影日時を**必ず削除**。1 枚ずつ、または ZIP で |
-| **LibreDetour** | 写真や動画の背景を削除：**JPEG を透明 PNG に**、自動で被写体を検出、枠、単色・グリーンバック、背景写真との比較。ブラシと自動選択、新しい背景（色・グラデーション・ぼかし・白黒・画像）、影、ステッカー風の縁取り、正方形やストーリーの構図、ZIP で一括処理。動画：グリーンバックまたは固定カメラ（背景を自動計算）、WEBM または透明 PNG 連番 |
+| **LibreMedias** | 写真と動画のオールインワンツール。**レタッチ**：トリミング、回転、傾き補正、反転、明るさ・コントラスト・色・シャープネス、フィルター、テキスト、内蔵ピクトグラムと自分のロゴ、透かし、ピクセル単位のサイズ。**切り抜き**：JPEG を透明 PNG に、自動検出・枠・単色/グリーンバック、ブラシと自動選択、新しい背景、影、ステッカー風の縁取り、ZIP で一括処理。顔・ナンバー・書類の**ぼかし**。画像の一括**軽量化・変換**。**動画**：グリーンバックまたは固定カメラ、トリミング、px 指定のサイズ、開始・終了、WEBM/MP4、アニメーション GIF、PNG/JPEG 連番。PNG・JPEG・WEBP・AVIF・GIF・BMP・TIFF・ICO・PDF で書き出し、位置情報・カメラ・日時は**常に削除** |
 | **LibreConvert** | 単位換算、日付間の日数（フランスの祝日対応）、タイムゾーン、10 進／2 進／8 進／16 進 |
 | **LibreNotes** | 係数付きの科目別・総合平均（フランスの 20 点満点制）、目標達成に必要な点数、CSV 書き出し |
 | **LibrePass** | 真にランダムなパスワードや覚えやすいパスフレーズの生成、手持ちのパスワードの強度テスト |
 
 <p><img src="captures/en/librerr-pc.png" alt="パソコンでの LibreRR" width="72%"> <img src="captures/en/librerr-telephone.png" alt="スマホでの LibreRR" width="22%"></p>
-<p><img src="captures/en/libreflou-pc.png" alt="パソコンでの LibreFlou" width="72%"> <img src="captures/en/libreflou-telephone.png" alt="スマホでの LibreFlou" width="22%"></p>
-<p><img src="captures/en/libredetour-pc.png" alt="パソコンでの LibreDetour" width="72%"> <img src="captures/en/libredetour-telephone.png" alt="スマホでの LibreDetour" width="22%"></p>
+<p><img src="captures/en/libremedias-pc.png" alt="パソコンでの LibreMedias" width="72%"> <img src="captures/en/libremedias-telephone.png" alt="スマホでの LibreMedias" width="22%"></p>
 
 ## 使い方
 
@@ -51,12 +48,12 @@
 
 - **データが端末の外に出ることはありません**：サーバー、Cookie、アクセス解析、他サイトのフォントやスクリプトは一切なし。
 - すべてのページに**厳格なコンテンツセキュリティポリシー（CSP）**を設定し、外部への接続を遮断。オフライン版では各スクリプトを **SHA-256 ハッシュ**で許可しているため、改変されたファイルは動作しません。
-- LibrePass はブラウザーの暗号学的乱数生成器（`crypto.getRandomValues`）を偏りなく使用。LibreImage、LibreFlou、LibreDetour はメタデータのない画像を出力します。
+- LibrePass はブラウザーの暗号学的乱数生成器（`crypto.getRandomValues`）を偏りなく使用。LibreMedias はメタデータのない画像を出力します。
 
 ## ビルドとホスティング
 
 ```sh
-python3 construire.py      # Python 3.8+、依存なし → dist/（オフライン版 7 ファイル + SHA256SUMS.txt）
+python3 construire.py      # Python 3.8+、依存なし → dist/（オフライン版 5 ファイル + SHA256SUMS.txt）
 ```
 
 ツールは静的ページなので、どのホスティングでも動きます。GitHub Pages なら *Deploy from a branch → `main` / root* を選択。テキストは各フォルダーの `textes.js` にあり、フランス語の文をキーにしています。
