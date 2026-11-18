@@ -65,12 +65,29 @@
   // Seules des images intégrées (data:image/…) sont acceptées comme logos
   const okLogo = (l) => l && typeof l.id === "string" && typeof l.src === "string" && /^data:image\/(png|jpeg|webp|gif);base64,[a-z0-9+/=]+$/i.test(l.src);
   logos = Array.isArray(logos) ? logos.filter(okLogo) : [];
+  // Le texte gardé n'est jamais donné tel quel à la page : il est décodé en octets,
+  // puis montré par une adresse blob: créée ici, avec un type d'image choisi dans une liste fixe
+  const MIMES = { png: "image/png", jpeg: "image/jpeg", webp: "image/webp", gif: "image/gif" };
+  const logoUrls = new Map();
+  function logoUrl(l) {
+    if (logoUrls.has(l.id)) return logoUrls.get(l.id);
+    const m = /^data:image\/(png|jpeg|webp|gif);base64,([a-z0-9+/=]+)$/i.exec(l.src);
+    let u = "";
+    try {
+      const bin = atob(m[2]), bytes = new Uint8Array(bin.length);
+      for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+      u = URL.createObjectURL(new Blob([bytes], { type: MIMES[m[1].toLowerCase()] || "image/png" }));
+    } catch (e) {}
+    logoUrls.set(l.id, u);
+    return u;
+  }
   const logoImgs = new Map();
   function logoImg(id) {
     if (logoImgs.has(id)) return logoImgs.get(id);
     const l = logos.find((x) => x.id === id);
     if (!l) return null;
-    const i = new Image(); i.onload = () => redraw(); i.src = l.src;
+    const i = new Image(); i.onload = () => redraw();
+    const u = logoUrl(l); if (u) i.src = u;
     logoImgs.set(id, i);
     return i;
   }
@@ -406,7 +423,7 @@
       const wrap = document.createElement("span"), pick = document.createElement("button"), img = document.createElement("img"), x = document.createElement("button");
       wrap.className = "lg";
       pick.className = "sw lib"; pick.dataset.logo = l.id; pick.title = String(l.name || "");
-      img.src = l.src; img.alt = "";
+      const u = logoUrl(l); if (u) img.src = u; img.alt = "";
       x.className = "iconbtn x"; x.dataset.dellogo = l.id; x.title = del; x.setAttribute("aria-label", del); x.textContent = "×";
       pick.appendChild(img); wrap.append(pick, x);
       return wrap;
@@ -455,7 +472,11 @@
   });
   $r("logos").addEventListener("click", (e) => {
     const d = e.target.closest("[data-dellogo]");
-    if (d) { logos = logos.filter((l) => l.id !== d.dataset.dellogo); logoImgs.delete(d.dataset.dellogo); saveLogos(); syncPanel(); return; }
+    if (d) {
+      const id = d.dataset.dellogo;
+      if (logoUrls.get(id)) URL.revokeObjectURL(logoUrls.get(id));
+      logos = logos.filter((l) => l.id !== id); logoImgs.delete(id); logoUrls.delete(id); saveLogos(); syncPanel(); return;
+    }
     const b = e.target.closest("[data-logo]"); if (!b || !src) return;
     const c = crop();
     addItem({ type: "logo", logo: b.dataset.logo, w: Math.round(Math.min(c.w, c.h) / 4) });
