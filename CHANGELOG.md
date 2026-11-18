@@ -10,6 +10,9 @@
   - **Choix du format d’export** partout : PNG, JPEG, WEBP, AVIF (selon le navigateur), GIF, BMP, TIFF, ICO (16 à 256 px) et PDF, sans métadonnées.
   - Passage d’une image d’un onglet à l’autre (détourer puis retoucher, retoucher puis flouter…).
 - LibreFlou et LibreImage sont retirés de la suite et de la page d’accueil. Leurs anciennes adresses (`libreflou/`, `libreimage/`) redirigent vers l’onglet correspondant de LibreMedias.
+- Page d’accueil : « Mes autres logiciels » liste désormais les dix logiciels de l’auteur (AutoDex, Carnet de notes, Decklight, JMeca et LJ Hub ajoutés).
+- LibreMedias propose le téléchargement de sa version hors ligne, comme LibreRR.
+- Publication des versions (fichiers hors ligne et `SHA256SUMS.txt`) par l’action GitHub *Release*, lancée à la main.
 - Tests des algorithmes et des encodeurs (`node --test tests/*.test.js`) ajoutés à l’intégration continue.
 
 ### English

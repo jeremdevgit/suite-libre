@@ -1,0 +1,34 @@
+name: Release
+# Publie une version : tests, construction des fichiers hors ligne (dist/) et Release GitHub.
+# Lancement à la main (onglet Actions › Release › Run workflow) avec le numéro de version du CHANGELOG.
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version à publier, telle qu’écrite dans CHANGELOG.md (ex. 2.0.0)"
+        required: true
+permissions:
+  contents: read
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: python3 -m unittest discover -s tests -v
+      - run: node --test tests/*.test.js
+      - run: python3 construire.py
+      - name: Publier la Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -eu
+          case "$VERSION" in ""|*[!0-9.]*) echo "Version invalide : $VERSION" >&2; exit 1;; esac
+          head=$(grep -m1 -E "^## ${VERSION//./\\.} " CHANGELOG.md) || { echo "Version absente du CHANGELOG" >&2; exit 1; }
+          # Titre : « Suite Libre 2.0.0 — LibreMedias » (la date est retirée)
+          title="Suite Libre $(echo "${head#\#\# }" | sed -E 's/ — [0-9]{4}-[0-9]{2}-[0-9]{2}//')"
+          # Notes : la section de cette version dans le CHANGELOG
+          awk -v h="$head" '$0 == h {f = 1; next} /^## / {f = 0} f' CHANGELOG.md > notes.md
+          gh release create "v$VERSION" dist/* --target "$GITHUB_SHA" --title "$title" --notes-file notes.md

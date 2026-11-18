@@ -3,6 +3,7 @@
 // Pour corriger une traduction ou ajouter une langue, il suffit de modifier ce fichier.
 window.TEXTES = {
   en: {
+    "<a href=\"https://github.com/jeremdevgit/suite-libre/releases/latest\" rel=\"noopener\">Télécharger LibreMedias</a> (un seul fichier, fonctionne hors ligne)": "<a href=\"https://github.com/jeremdevgit/suite-libre/releases/latest\" rel=\"noopener\">Download LibreMedias</a> (a single file that works offline)",
     "+{n} % (choisis un autre format)": "+{n}% (choose another format)",
     "12 rue des Exemples": "12 Example Street",
     "<b>Automatique</b> trouve le sujet seul ; <b>Cadre</b> marche mieux quand tu traces un rectangle autour du sujet.": "<b>Automatic</b> finds the subject by itself; <b>Frame</b> works better when you draw a rectangle around the subject.",
@@ -385,6 +386,7 @@ window.TEXTES = {
     "Étoile": "Star",
   },
   es: {
+    "<a href=\"https://github.com/jeremdevgit/suite-libre/releases/latest\" rel=\"noopener\">Télécharger LibreMedias</a> (un seul fichier, fonctionne hors ligne)": "<a href=\"https://github.com/jeremdevgit/suite-libre/releases/latest\" rel=\"noopener\">Descargar LibreMedias</a> (un solo archivo, funciona sin conexión)",
     "+{n} % (choisis un autre format)": "+{n} % (elige otro formato)",
     "12 rue des Exemples": "Calle Ejemplo 12",
     "<b>Automatique</b> trouve le sujet seul ; <b>Cadre</b> marche mieux quand tu traces un rectangle autour du sujet.": "<b>Automático</b> encuentra el sujeto solo; <b>Marco</b> funciona mejor si trazas un rectángulo alrededor del sujeto.",
@@ -767,6 +769,7 @@ window.TEXTES = {
     "Étoile": "Estrella",
   },
   de: {
+    "<a href=\"https://github.com/jeremdevgit/suite-libre/releases/latest\" rel=\"noopener\">Télécharger LibreMedias</a> (un seul fichier, fonctionne hors ligne)": "<a href=\"https://github.com/jeremdevgit/suite-libre/releases/latest\" rel=\"noopener\">LibreMedias herunterladen</a> (eine einzige Datei, funktioniert offline)",
     "+{n} % (choisis un autre format)": "+{n} % (wähle ein anderes Format)",
     "12 rue des Exemples": "Beispielstraße 12",
     "<b>Automatique</b> trouve le sujet seul ; <b>Cadre</b> marche mieux quand tu traces un rectangle autour du sujet.": "<b>Automatisch</b> findet das Motiv selbst; <b>Rahmen</b> funktioniert besser, wenn du ein Rechteck um das Motiv ziehst.",
@@ -1149,6 +1152,7 @@ window.TEXTES = {
     "Étoile": "Stern",
   },
   it: {
+    "<a href=\"https://github.com/jeremdevgit/suite-libre/releases/latest\" rel=\"noopener\">Télécharger LibreMedias</a> (un seul fichier, fonctionne hors ligne)": "<a href=\"https://github.com/jeremdevgit/suite-libre/releases/latest\" rel=\"noopener\">Scarica LibreMedias</a> (un solo file, funziona offline)",
     "+{n} % (choisis un autre format)": "+{n}% (scegli un altro formato)",
     "12 rue des Exemples": "Via degli Esempi 12",
     "<b>Automatique</b> trouve le sujet seul ; <b>Cadre</b> marche mieux quand tu traces un rectangle autour du sujet.": "<b>Automatico</b> trova il soggetto da solo; <b>Riquadro</b> funziona meglio se tracci un rettangolo attorno al soggetto.",
@@ -1531,6 +1535,7 @@ window.TEXTES = {
     "Étoile": "Stella",
   },
   pt: {
+    "<a href=\"https://github.com/jeremdevgit/suite-libre/releases/latest\" rel=\"noopener\">Télécharger LibreMedias</a> (un seul fichier, fonctionne hors ligne)": "<a href=\"https://github.com/jeremdevgit/suite-libre/releases/latest\" rel=\"noopener\">Baixar o LibreMedias</a> (um único arquivo, funciona offline)",
     "+{n} % (choisis un autre format)": "+{n}% (escolha outro formato)",
     "12 rue des Exemples": "Rua dos Exemplos, 12",
     "<b>Automatique</b> trouve le sujet seul ; <b>Cadre</b> marche mieux quand tu traces un rectangle autour du sujet.": "<b>Automático</b> encontra o assunto sozinho; <b>Moldura</b> funciona melhor quando você desenha um retângulo em volta do assunto.",
@@ -1913,6 +1918,7 @@ window.TEXTES = {
     "Étoile": "Estrela",
   },
   zh: {
+    "<a href=\"https://github.com/jeremdevgit/suite-libre/releases/latest\" rel=\"noopener\">Télécharger LibreMedias</a> (un seul fichier, fonctionne hors ligne)": "<a href=\"https://github.com/jeremdevgit/suite-libre/releases/latest\" rel=\"noopener\">下载 LibreMedias</a>（单个文件，可离线使用）",
     "+{n} % (choisis un autre format)": "+{n}%（请换一种格式）",
     "12 rue des Exemples": "示例路 12 号",
     "<b>Automatique</b> trouve le sujet seul ; <b>Cadre</b> marche mieux quand tu traces un rectangle autour du sujet.": "<b>自动</b>会自己找到主体；在主体周围画一个矩形时，<b>框选</b>效果更好。",
@@ -2295,6 +2301,7 @@ window.TEXTES = {
     "Étoile": "星形",
   },
   ja: {
+    "<a href=\"https://github.com/jeremdevgit/suite-libre/releases/latest\" rel=\"noopener\">Télécharger LibreMedias</a> (un seul fichier, fonctionne hors ligne)": "<a href=\"https://github.com/jeremdevgit/suite-libre/releases/latest\" rel=\"noopener\">LibreMedias をダウンロード</a>（ファイル 1 つ、オフラインで動作）",
     "+{n} % (choisis un autre format)": "+{n}%（別の形式を選んでください）",
     "12 rue des Exemples": "例町 1-2",
     "<b>Automatique</b> trouve le sujet seul ; <b>Cadre</b> marche mieux quand tu traces un rectangle autour du sujet.": "<b>自動</b>は被写体を自動で見つけます。被写体を長方形で囲むと<b>枠</b>の方がうまくいきます。",
