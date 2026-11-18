@@ -1,5 +1,19 @@
 # Historique des versions
 
+## 1.2.0 — 2026-11-18 — LibreDetour
+
+- **Nouvel outil LibreDetour** : détourage de photos et de vidéos, entièrement dans le navigateur, sans dépendance ni réseau.
+  - Photos : JPEG en PNG ou WEBP transparent ; méthodes Automatique (GrabCut : modèles de couleurs et coupe minimale de graphe), Cadre, Fond uni (pipette, anti-reflet) et Photo du fond (différence avec une photo sans le sujet).
+  - Retouche au pinceau et à la baguette magique (Garder / Retirer), annuler / rétablir, vues Résultat, Retouche, Masque et Avant / après.
+  - Bords : bords fins (filtre guidé, cheveux), rétrécir / élargir, adoucir, retrait des petites taches, sujet unique, trous bouchés, correction du liseré de couleur du fond.
+  - Nouveau fond : couleur, dégradé, flou du fond d’origine, noir et blanc (sujet en couleur), image ; ombre portée, contour autocollant ; cadrage ajusté au sujet, carré, 4:5, 9:16, 16:9, 3:2, taille maximale ; export masque noir et blanc ; plusieurs photos détourées d’un coup en ZIP.
+  - Vidéos : fond vert ou uni (pipette sur l’aperçu), caméra fixe avec fond calculé automatiquement (médiane des images) ou pris sur une image, cadre de limitation ; caméra en direct ; enregistrement WEBM avec le son, suite d’images PNG transparentes en ZIP, image actuelle en PNG ; début et fin.
+- Tests des algorithmes (`node --test tests/*.test.js`) ajoutés à l’intégration continue.
+
+### English
+
+- **New tool LibreDetour**: background removal for photos and videos, fully in the browser. Automatic subject, frame, plain/green background and background-photo methods; brush and magic wand retouching; fine edges, decontamination; new backgrounds, shadow, sticker outline, social-media framing; batch ZIP. Videos: green screen or fixed camera with automatic background, live camera, WEBM recording or transparent PNG sequence.
+
 ## 1.1.1 — 2026-11-07 — Sécurité
 
 - Contrôle des ressources hors ligne : analyse HTML structurée avec HTMLParser. Éditeur documenté.

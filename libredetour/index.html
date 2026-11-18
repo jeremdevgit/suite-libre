@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' data: blob:; media-src 'self' data: blob: mediastream:; worker-src blob:; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LibreDetour</title>
+<link rel="icon" href="libredetour.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="libredetour.svg">
+<meta name="theme-color" content="#eceef1" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#111214" media="(prefers-color-scheme: dark)">
+<style>
+@font-face{font-family:'Figtree';font-style:normal;font-weight:400 800;font-display:swap;src:url(fonts/figtree-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-weight:400 500;font-display:swap;src:url(fonts/jetbrains-mono-latin.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+</style>
+<style>
+/* Layout: plaques de verre liquide flottant au-dessus d'un fond de lumière colorée ; réglages à gauche, épreuve épinglée à droite (empilés sur mobile, épreuve en premier) */
+:root {
+  --ground: #eceef1;
+  --blob-1: #ffffff;
+  --blob-2: #d3d7de;
+  --blob-3: #f7f8fa;
+  --blob-4: #c6cbd3;
+  --glass: rgba(255, 255, 255, 0.42);
+  --glass-strong: rgba(255, 255, 255, 0.62);
+  --glass-field: rgba(255, 255, 255, 0.5);
+  --glass-edge: rgba(255, 255, 255, 0.75);
+  --glass-edge-low: rgba(255, 255, 255, 0.18);
+  --glass-shadow: rgba(20, 24, 32, 0.14);
+  --ink: #17191d;
+  --ink-soft: #5c616b;
+  --rule: rgba(20, 24, 32, 0.1);
+  --accent: #2a2d33;
+  --accent-2: #2a2d33;
+  --accent-ink: #ffffff;
+  --accent-wash: rgba(20, 24, 32, 0.07);
+  --warn: #8a5300;
+  --warn-wash: rgba(255, 196, 92, 0.28);
+  --bad: #b3261e;
+  --bad-wash: rgba(255, 120, 110, 0.22);
+  --checker: rgba(20, 24, 32, 0.06);
+  --plate: #ffffff;
+  --f-display: "Figtree", "SF Pro Display", -apple-system, system-ui, sans-serif;
+  --f-body: "Figtree", "SF Pro Text", -apple-system, system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r: 14px;
+  --r-lg: 26px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground: #111214; --blob-1: #3a3d44; --blob-2: #24262b; --blob-3: #2e3036; --blob-4: #1c1d21;
+    --glass: rgba(40, 42, 48, 0.45); --glass-strong: rgba(58, 61, 68, 0.6); --glass-field: rgba(0, 0, 0, 0.28);
+    --glass-edge: rgba(255, 255, 255, 0.22); --glass-edge-low: rgba(255, 255, 255, 0.05); --glass-shadow: rgba(0, 0, 0, 0.45);
+    --ink: #eceef1; --ink-soft: #a3a8b1; --rule: rgba(255, 255, 255, 0.09);
+    --accent: #e8eaee; --accent-2: #e8eaee; --accent-ink: #111214; --accent-wash: rgba(255, 255, 255, 0.08);
+    --warn: #ffcf7a; --warn-wash: rgba(255, 190, 80, 0.14); --bad: #ff9a90; --bad-wash: rgba(255, 110, 100, 0.16);
+    --checker: rgba(20, 24, 32, 0.06); --plate: #ffffff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --ground: #111214; --blob-1: #3a3d44; --blob-2: #24262b; --blob-3: #2e3036; --blob-4: #1c1d21;
+  --glass: rgba(40, 42, 48, 0.45); --glass-strong: rgba(58, 61, 68, 0.6); --glass-field: rgba(0, 0, 0, 0.28);
+  --glass-edge: rgba(255, 255, 255, 0.22); --glass-edge-low: rgba(255, 255, 255, 0.05); --glass-shadow: rgba(0, 0, 0, 0.45);
+  --ink: #eceef1; --ink-soft: #a3a8b1; --rule: rgba(255, 255, 255, 0.09);
+  --accent: #e8eaee; --accent-2: #e8eaee; --accent-ink: #111214; --accent-wash: rgba(255, 255, 255, 0.08);
+  --warn: #ffcf7a; --warn-wash: rgba(255, 190, 80, 0.14); --bad: #ff9a90; --bad-wash: rgba(255, 110, 100, 0.16);
+  --checker: rgba(20, 24, 32, 0.06); --plate: #ffffff;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { min-height: 100%; }
+body {
+  background: var(--ground); color: var(--ink); font: 15px/1.5 var(--f-body);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 56px; min-height: 100%; position: relative;
+}
+/* Fond lumineux derrière le verre */
+.aura { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.aura i { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.9; }
+.aura i:nth-child(1) { width: 46vmax; height: 46vmax; left: -12vmax; top: -14vmax; background: var(--blob-1); }
+.aura i:nth-child(2) { width: 40vmax; height: 40vmax; right: -10vmax; top: 4vmax; background: var(--blob-2); }
+.aura i:nth-child(3) { width: 36vmax; height: 36vmax; left: 18vmax; bottom: -16vmax; background: var(--blob-3); }
+.aura i:nth-child(4) { width: 26vmax; height: 26vmax; right: 14vmax; bottom: 6vmax; background: var(--blob-4); opacity: 0.55; }
+@media (prefers-reduced-motion: no-preference) {
+  .aura i { animation: drift 26s ease-in-out infinite alternate; }
+  .aura i:nth-child(2) { animation-duration: 32s; animation-delay: -8s; }
+  .aura i:nth-child(3) { animation-duration: 38s; animation-delay: -14s; }
+  .aura i:nth-child(4) { animation-duration: 22s; animation-delay: -4s; }
+  @keyframes drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(4vmax, 3vmax) scale(1.08); } }
+}
+
+/* Verre liquide : flou + saturation, liseré spéculaire en haut, reflet bas, ombre portée douce */
+.glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid var(--glass-edge-low);
+  box-shadow:
+    inset 0 1px 0 var(--glass-edge),
+    inset 0 -1px 0 var(--glass-edge-low),
+    inset 0 0 0 1px var(--glass-edge-low),
+    0 18px 50px -18px var(--glass-shadow),
+    0 2px 6px -2px var(--glass-shadow);
+}
+
+.wrap { position: relative; z-index: 1; max-width: 1180px; margin: 0 auto; display: flex; flex-direction: column; gap: 22px; }
+header.top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px;
+  padding: 14px 20px; border-radius: 999px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+h1 { font: 800 26px/1 var(--f-display); margin: 0; letter-spacing: -0.02em; }
+h1 b { font-weight: 800; color: var(--ink-soft); }
+.drop-mark { width: 38px; height: 38px; border-radius: 12px; flex: none; position: relative;
+  background: var(--accent);
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.35), inset 0 -6px 10px rgba(0,0,0,.18), 0 6px 16px -8px var(--glass-shadow); }
+.drop-mark::before, .drop-mark::after { content: ""; position: absolute; background: var(--accent-ink); border-radius: 3px; }
+.drop-mark::before { left: 8px; top: 8px; width: 9px; height: 9px; box-shadow: 13px 0 0 var(--accent-ink), 0 13px 0 var(--accent-ink); }
+.drop-mark::after { right: 8px; bottom: 8px; width: 5px; height: 5px; border-radius: 50%; }
+.lede { margin: 0; color: var(--ink-soft); font-size: 14px; }
+
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 420px); gap: 22px; align-items: start; }
+@media (max-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr); } .proof { order: -1; position: static !important; } header.top { border-radius: var(--r-lg); } }
+
+.panel { border-radius: var(--r-lg); min-width: 0; }
+.stack { display: flex; flex-direction: column; gap: 14px; }
+.section { padding: 20px 22px; border-top: 1px solid var(--rule); display: flex; flex-direction: column; gap: 14px; }
+.section:first-child { border-top: 0; }
+h2 { font: 700 12px/1.2 var(--f-display); text-transform: uppercase; letter-spacing: 0.1em; margin: 0; color: var(--ink-soft); }
+
+/* Onglets façon pastilles de verre */
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 5px; border-radius: 999px; background: var(--glass-field);
+  box-shadow: inset 0 1px 3px var(--glass-shadow); }
+.tab { font: 600 13.5px/1 var(--f-body); padding: 9px 13px; border-radius: 999px; border: 0;
+  background: transparent; color: var(--ink); cursor: pointer; }
+.tab:hover { background: var(--accent-wash); }
+.tab[aria-selected="true"] { background: var(--glass-strong); color: var(--accent);
+  box-shadow: inset 0 1px 0 var(--glass-edge), 0 4px 12px -4px var(--glass-shadow); }
+.tab:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, summary:focus-visible, label.btn:focus-within {
+  outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; }
+.fields .full { grid-column: 1 / -1; }
+@media (max-width: 520px) { .fields { grid-template-columns: minmax(0, 1fr); } }
+label.f { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+label.f > span { font-size: 13px; font-weight: 600; }
+label.f > small, .hint { font-size: 12.5px; color: var(--ink-soft); }
+input[type="text"], input[type="url"], input[type="email"], input[type="tel"], input[type="number"], input[type="password"], select, textarea {
+  width: 100%; font: 15px/1.4 var(--f-body); color: var(--ink); background: var(--glass-field);
+  border: 1px solid var(--glass-edge-low); border-radius: var(--r); padding: 10px 12px;
+  box-shadow: inset 0 1px 2px var(--glass-shadow); }
+input:focus, select:focus, textarea:focus { background: var(--glass-strong); }
+textarea { resize: vertical; min-height: 96px; }
+input::placeholder, textarea::placeholder { color: var(--ink-soft); opacity: 0.8; }
+.check { display: flex; align-items: center; gap: 8px; font-size: 14px; cursor: pointer; }
+.check input { width: 17px; height: 17px; accent-color: var(--accent); }
+
+.row { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; }
+.color { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; }
+.color input[type="color"] { width: 40px; height: 40px; padding: 3px; border: 1px solid var(--glass-edge-low); border-radius: 50%;
+  background: var(--glass-strong); cursor: pointer; box-shadow: inset 0 1px 0 var(--glass-edge), 0 3px 8px -3px var(--glass-shadow); }
+.color input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.color input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 50%; }
+.color input[type="color"]::-moz-color-swatch { border: 0; border-radius: 50%; }
+.color input:disabled { opacity: .4; }
+.color code { font: 12px var(--f-mono); color: var(--ink-soft); }
+.range { display: grid; grid-template-columns: 9.5em minmax(0, 1fr) 4.5em; align-items: center; gap: 10px; font-size: 13px; font-weight: 500; }
+.range input { width: 100%; accent-color: var(--accent); }
+.range output { font: 12.5px var(--f-mono); text-align: right; font-variant-numeric: tabular-nums; }
+
+.swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.sw { width: 32px; height: 32px; border-radius: 50%; border: 0; cursor: pointer; padding: 0; position: relative; overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--rule), 0 3px 8px -3px var(--glass-shadow); }
+.sw i { position: absolute; inset: 0; }
+.sw i + i { clip-path: polygon(100% 0, 100% 100%, 0 100%); }
+.sw::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: linear-gradient(160deg, rgba(255,255,255,.55), transparent 45%); }
+
+.shapes { display: flex; flex-wrap: wrap; gap: 8px; }
+.shape { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 9px 6px 7px; width: 80px;
+  border: 1px solid var(--glass-edge-low); border-radius: var(--r); background: var(--glass-field); color: var(--ink);
+  cursor: pointer; font: 500 12px var(--f-body); }
+.shape svg { width: 30px; height: 30px; fill: currentColor; }
+.shape:hover { background: var(--accent-wash); }
+.shape[aria-pressed="true"] { background: var(--glass-strong); color: var(--accent); border-color: var(--accent);
+  box-shadow: inset 0 1px 0 var(--glass-edge), 0 6px 14px -8px var(--glass-shadow); }
+
+details.more summary { cursor: pointer; font: 700 12px var(--f-display); text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); list-style: none; }
+details.more summary::-webkit-details-marker { display: none; }
+details.more summary::before { content: "+ "; color: var(--accent); }
+details.more[open] summary::before { content: "– "; }
+details.more > div { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+
+.drop { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px; border: 1.5px dashed var(--rule); border-radius: var(--r); background: var(--glass-field); }
+.drop.over { border-color: var(--accent); background: var(--accent-wash); }
+.drop .thumb { width: 52px; height: 52px; border-radius: 12px; flex: none; background: var(--checker); display: grid; place-items: center; overflow: hidden; }
+.drop .thumb img { max-width: 100%; max-height: 100%; }
+.drop .txt { flex: 1; min-width: 10em; font-size: 13px; color: var(--ink-soft); overflow-wrap: anywhere; }
+
+.btn { font: 600 14px/1 var(--f-body); padding: 11px 16px; border-radius: 999px; border: 1px solid var(--glass-edge-low);
+  background: var(--glass-strong); color: var(--ink); cursor: pointer;
+  box-shadow: inset 0 1px 0 var(--glass-edge), 0 4px 12px -5px var(--glass-shadow); }
+.btn:hover { color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: transparent; color: var(--accent-ink);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 8px 20px -10px var(--glass-shadow); }
+.btn.primary:hover { color: var(--accent-ink); filter: brightness(1.12); }
+.btn.small { padding: 8px 12px; font-size: 13px; }
+
+/* Épreuve */
+.proof { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 16px); overflow: hidden; }
+.stage { padding: 22px; display: grid; place-items: center; }
+.plate { width: 100%; max-width: 340px; aspect-ratio: 1; border-radius: 20px; padding: 0; overflow: hidden;
+  background-color: var(--plate);
+  background-image: linear-gradient(45deg, var(--checker) 25%, transparent 25%, transparent 75%, var(--checker) 75%),
+                    linear-gradient(45deg, var(--checker) 25%, transparent 25%, transparent 75%, var(--checker) 75%);
+  background-size: 16px 16px; background-position: 0 0, 8px 8px;
+  box-shadow: 0 20px 40px -20px var(--glass-shadow), 0 0 0 1px var(--rule); }
+#qr { width: 100%; height: 100%; display: grid; place-items: center; }
+#qr canvas, #qr svg { width: 100% !important; height: auto !important; max-width: 100%; display: block; }
+.err { width: calc(100% - 24px); padding: 16px; border-radius: var(--r); background: var(--bad-wash); color: var(--bad); font-size: 14px; text-align: center; }
+.specs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0 22px; }
+.specs div { background: var(--glass-field); border-radius: var(--r); padding: 9px 12px; min-width: 0; box-shadow: inset 0 1px 0 var(--glass-edge-low); }
+.specs dt { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink-soft); }
+.specs dd { margin: 2px 0 0; font: 500 14px var(--f-mono); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.proof > .section { border-top: 0; }
+.payload { font: 12px/1.5 var(--f-mono); background: var(--glass-field); border: 1px solid var(--glass-edge-low); border-radius: var(--r); padding: 10px 12px; max-height: 120px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0; box-shadow: inset 0 1px 2px var(--glass-shadow); }
+.notes { display: flex; flex-direction: column; gap: 6px; }
+.notes:empty { display: none; }
+.note { font-size: 13px; padding: 9px 12px; border-radius: var(--r); background: var(--warn-wash); color: var(--warn); }
+.note.bad { background: var(--bad-wash); color: var(--bad); }
+.export-out { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.export-out img { max-width: 220px; width: 100%; border-radius: 14px; background: var(--plate); box-shadow: 0 0 0 1px var(--rule), 0 10px 24px -12px var(--glass-shadow); }
+.toast { font-size: 13px; font-weight: 500; color: var(--accent); min-height: 1.4em; }
+@media (prefers-reduced-motion: no-preference) { .tab, .btn, .shape, input, select, textarea { transition: background-color .2s, color .2s, box-shadow .2s, border-color .2s; } }
+.about { padding: 22px 24px; display: flex; flex-direction: column; gap: 18px; }
+.about-head { display: flex; flex-direction: column; gap: 8px; }
+.about-lede { margin: 0; font-size: 17px; line-height: 1.45; max-width: 60ch; text-wrap: pretty; }
+.about-cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 32px; }
+@media (max-width: 700px) { .about-cols { grid-template-columns: minmax(0, 1fr); } }
+.about h3 { font: 700 14px/1.3 var(--f-display); margin: 0 0 6px; }
+.about p, .about ul { margin: 0 0 12px; color: var(--ink-soft); max-width: 62ch; }
+.about ul { padding-left: 1.1em; display: flex; flex-direction: column; gap: 4px; }
+.about-foot { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 6px 20px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.about-foot p { margin: 0; }
+.credit { font: 500 15px var(--f-display); color: var(--ink); }
+.credit b { font-weight: 800; letter-spacing: 0.01em; }
+.credit a { color: inherit; font-weight: 600; }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .glass { background: var(--glass-strong); } }
+/* Ajouts communs à la suite Libre : couleurs d'état et composants partagés */
+:root { --good: #1d7448; --good-wash: rgba(40, 160, 100, 0.16); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --good: #7fd8a6; --good-wash: rgba(90, 200, 140, 0.14); } }
+:root[data-theme="dark"] { --good: #7fd8a6; --good-wash: rgba(90, 200, 140, 0.14); }
+
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; font: 600 12px/1.2 var(--f-body);
+  background: var(--glass-field); color: var(--ink-soft); white-space: nowrap; }
+.chip.good { background: var(--good-wash); color: var(--good); }
+.chip.warn { background: var(--warn-wash); color: var(--warn); }
+.chip.bad { background: var(--bad-wash); color: var(--bad); }
+.chip.ex { background: var(--accent-wash); color: var(--ink); }
+.big { font: 700 44px/1 var(--f-display); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.tablewrap { overflow-x: auto; }
+table.t { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.t th { text-align: left; font: 700 11px/1.2 var(--f-display); text-transform: uppercase; letter-spacing: .1em; color: var(--ink-soft); padding: 6px 8px; }
+table.t td { padding: 7px 8px; border-top: 1px solid var(--rule); vertical-align: middle; }
+table.t td.num { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.iconbtn { width: 34px; height: 34px; display: inline-grid; place-items: center; border-radius: 50%; border: 1px solid var(--glass-edge-low);
+  background: var(--glass-field); color: var(--ink-soft); cursor: pointer; font: 600 16px/1 var(--f-body); flex: none; }
+.iconbtn:hover { color: var(--ink); background: var(--glass-strong); }
+.meter { height: 8px; border-radius: 999px; background: var(--glass-field); overflow: hidden; box-shadow: inset 0 1px 2px var(--glass-shadow); }
+.meter > i { display: block; height: 100%; border-radius: 999px; background: var(--ink-soft); }
+.meter.good > i { background: var(--good); } .meter.warn > i { background: var(--warn); } .meter.bad > i { background: var(--bad); }
+.kv { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; margin: 0; font-size: 14px; }
+.kv dt { color: var(--ink-soft); }
+.kv dd { margin: 0; font-family: var(--f-mono); font-variant-numeric: tabular-nums; text-align: right; overflow-wrap: anywhere; }
+.empty { padding: 18px; border-radius: var(--r); border: 1.5px dashed var(--rule); color: var(--ink-soft); text-align: center; font-size: 14px; }
+</style>
+<style>
+/* Menu des langues */
+.langues { margin-left: auto; }
+.langue { font: 600 13px/1 var(--f-body); color: var(--ink); background: var(--glass-field); border: 1px solid var(--glass-edge-low); border-radius: 999px; padding: 8px 12px; cursor: pointer; box-shadow: inset 0 1px 2px var(--glass-shadow); }
+</style>
+<style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+
+<script src="commun.js"></script>
+<style>
+/* LibreDetour : image à gauche (en premier sur mobile), réglages à droite */
+@media (max-width: 860px) { .grid > .proof { order: 0; } }
+.drop-mark { overflow: hidden; }
+.drop-mark::before { left: 50%; top: 0; width: 50%; height: 100%; border-radius: 0; box-shadow: none; opacity: .35;
+  background: repeating-conic-gradient(#fff 0 25%, transparent 0 50%) 0 0 / 8px 8px; }
+.drop-mark::after { left: 11px; top: 9px; right: auto; bottom: auto; width: 16px; height: 20px; border-radius: 8px 8px 4px 4px; }
+.tab[aria-pressed="true"] { background: var(--glass-strong); color: var(--accent);
+  box-shadow: inset 0 1px 0 var(--glass-edge), 0 4px 12px -4px var(--glass-shadow); }
+.modes { align-self: center; }
+.drop.big { flex-direction: column; justify-content: center; text-align: center; padding: 48px 16px; gap: 10px; cursor: pointer; }
+.drop.big strong { font: 700 16px var(--f-display); }
+.scene { display: flex; flex-direction: column; gap: 12px; }
+.stagebox { position: relative; border-radius: var(--r); padding: 10px; display: grid; place-items: center; min-height: 200px;
+  background-color: var(--plate);
+  background-image: linear-gradient(45deg, var(--checker) 25%, transparent 25%, transparent 75%, var(--checker) 75%), linear-gradient(45deg, var(--checker) 25%, transparent 25%, transparent 75%, var(--checker) 75%);
+  background-size: 16px 16px; background-position: 0 0, 8px 8px; box-shadow: inset 0 0 0 1px var(--rule); }
+.stagebox.over { box-shadow: inset 0 0 0 2px var(--accent); }
+.stagebox canvas { display: block; max-width: 100%; max-height: 72vh; width: auto; height: auto; touch-action: none;
+  border-radius: 6px; -webkit-user-select: none; user-select: none; }
+#cv { cursor: crosshair; }
+.busy { position: absolute; inset: 10px; display: grid; place-items: center; border-radius: 6px; background: rgba(0,0,0,.28); color: #fff; font: 600 14px var(--f-body); pointer-events: none; }
+.busy span { padding: 10px 16px; border-radius: 999px; background: rgba(0,0,0,.55); }
+.bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.bar .grp { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.banner { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding: 10px 12px;
+  border-radius: var(--r); background: var(--glass-field); font-size: 13.5px; }
+.tabs.small .tab { padding: 8px 11px; font-size: 13px; }
+.thumbs { display: flex; gap: 8px; overflow-x: auto; padding: 2px 2px 6px; }
+.thumbs button { position: relative; flex: none; width: 64px; height: 64px; border-radius: 12px; border: 0; padding: 0; overflow: hidden; cursor: pointer;
+  background: var(--checker); box-shadow: inset 0 0 0 1px var(--rule); }
+.thumbs button[aria-current="true"] { box-shadow: 0 0 0 2px var(--accent); }
+.thumbs img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.thumbs i { position: absolute; right: 3px; top: 3px; width: 10px; height: 10px; border-radius: 50%; background: var(--good); box-shadow: 0 0 0 2px #fff; }
+.final { display: grid; place-items: center; padding: 10px; border-radius: var(--r); min-height: 120px;
+  background-color: var(--plate);
+  background-image: linear-gradient(45deg, var(--checker) 25%, transparent 25%, transparent 75%, var(--checker) 75%), linear-gradient(45deg, var(--checker) 25%, transparent 25%, transparent 75%, var(--checker) 75%);
+  background-size: 12px 12px; background-position: 0 0, 6px 6px; box-shadow: inset 0 0 0 1px var(--rule); }
+.final canvas { max-width: 100%; max-height: 220px; display: block; border-radius: 4px; }
+.keysw { width: 40px; height: 40px; border-radius: 50%; box-shadow: inset 0 0 0 1px var(--rule), 0 3px 8px -3px var(--glass-shadow); flex: none; }
+.progress { height: 8px; border-radius: 999px; background: var(--glass-field); overflow: hidden; box-shadow: inset 0 1px 2px var(--glass-shadow); }
+.progress > i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width .2s; }
+.vctl { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.vctl input { width: 100%; accent-color: var(--accent); }
+.vctl output { font: 12.5px var(--f-mono); font-variant-numeric: tabular-nums; }
+.btn:disabled, .tab:disabled { opacity: .45; cursor: default; }
+.ptabs { align-self: center; }
+</style>
+
+<div class="aura" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<div class="wrap">
+  <header class="top glass">
+    <div class="brand"><span class="drop-mark" aria-hidden="true"></span><h1 data-brut>Libre<b>Detour</b></h1></div>
+    <div class="tabs ptabs" id="ptabs" role="tablist" aria-label="Type de fichier">
+      <button class="tab" role="tab" data-tab="photo">Photo</button>
+      <button class="tab" role="tab" data-tab="video">Vidéo</button>
+    </div>
+    <span class="langues" data-langues></span>
+  </header>
+  <p class="lede" style="position:relative;z-index:1;text-align:center;margin:-8px 0 0">Détoure tes photos et tes vidéos : fond transparent (PNG), fond de couleur, flou ou remplacé, sans rien envoyer sur un serveur.</p>
+
+  <!-- ===================== PHOTO ===================== -->
+  <div class="grid" data-pane="photo">
+    <div class="panel glass">
+      <section class="section">
+        <h2>Photos</h2>
+        <label class="drop big" id="vide" for="file">
+          <strong>Glisse une ou plusieurs photos ici</strong>
+          <span class="hint">ou clique pour les choisir, ou colle une image (Cmd/Ctrl + V). JPG, PNG, WEBP, et HEIC dans Safari.</span>
+        </label>
+        <input type="file" id="file" accept="image/*,.heic,.heif" multiple hidden>
+        <input type="file" id="bgfile" accept="image/*" hidden>
+        <input type="file" id="platefile" accept="image/*" hidden>
+        <div class="scene" id="scene" hidden>
+          <div class="banner" id="example" hidden>
+            <span><span class="chip ex">Exemple</span> Image d’exemple pour montrer le fonctionnement.</span>
+            <label class="btn small" for="file" style="cursor:pointer">Choisir mes photos</label>
+          </div>
+          <div class="tabs small" id="views" role="group" aria-label="Affichage">
+            <button class="tab" data-view="result" aria-pressed="false">Résultat</button>
+            <button class="tab" data-view="overlay" aria-pressed="false">Retouche</button>
+            <button class="tab" data-view="mask" aria-pressed="false">Masque</button>
+            <button class="tab" data-view="compare" aria-pressed="false">Avant / après</button>
+          </div>
+          <div class="stagebox" id="stage"><canvas id="cv" aria-label="Photo à détourer"></canvas><div class="busy" id="busy" hidden><span>Détourage en cours…</span></div></div>
+          <div class="range" id="compare-row" hidden><label for="compare">Avant / après</label><input type="range" id="compare" min="0" max="100" value="50"><output id="compare-o"></output></div>
+          <div class="bar">
+            <div class="grp">
+              <button class="btn small" id="undo" title="Annuler (Cmd/Ctrl + Z)">Annuler</button>
+              <button class="btn small" id="redo" title="Rétablir (Maj + Cmd/Ctrl + Z)">Rétablir</button>
+            </div>
+            <div class="grp">
+              <span class="hint" id="facts"></span>
+              <label class="btn small" for="file" style="cursor:pointer">Ajouter des photos</label>
+            </div>
+          </div>
+          <div class="thumbs" id="thumbs" hidden></div>
+          <div class="note bad" id="err" hidden></div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="panel proof glass" aria-label="Réglages">
+      <section class="section">
+        <h2>Méthode</h2>
+        <div class="tabs small" id="methods" role="group" aria-label="Méthode">
+          <button class="tab" data-method="auto" aria-pressed="false">Automatique</button>
+          <button class="tab" data-method="cadre" aria-pressed="false">Cadre</button>
+          <button class="tab" data-method="couleur" aria-pressed="false">Fond uni</button>
+          <button class="tab" data-method="diff" aria-pressed="false">Photo du fond</button>
+        </div>
+        <p class="hint" style="margin:0" id="method-hint"></p>
+        <div id="m-auto" class="stack">
+          <label class="f"><span>Précision</span>
+            <select id="quality"><option value="320">Rapide</option><option value="512">Normale</option><option value="768">Fine (plus lente)</option></select></label>
+        </div>
+        <div id="m-couleur" class="stack">
+          <div class="row"><span class="keysw" id="keysw"></span><button class="btn small" id="key-auto">Couleur du bord</button><label class="color"><input type="color" id="key"> Choisir</label></div>
+          <div class="range"><label for="tol">Tolérance</label><input type="range" id="tol" min="0" max="100"><output id="tol-o"></output></div>
+          <div class="range"><label for="soft">Douceur</label><input type="range" id="soft" min="0" max="100"><output id="soft-o"></output></div>
+          <div class="range"><label for="spill">Anti-reflet</label><input type="range" id="spill" min="0" max="100"><output id="spill-o"></output></div>
+        </div>
+        <div id="m-diff" class="stack">
+          <div class="row"><button class="btn small" id="plate-btn">Choisir la photo du fond seul</button><span class="hint" id="plate-name"></span></div>
+          <div class="range"><label for="dtol">Tolérance</label><input type="range" id="dtol" min="0" max="100"><output id="dtol-o"></output></div>
+          <div class="range"><label for="dsoft">Douceur</label><input type="range" id="dsoft" min="0" max="100"><output id="dsoft-o"></output></div>
+        </div>
+      </section>
+      <section class="section">
+        <h2>Retouche</h2>
+        <div class="tabs small" id="tools" role="group" aria-label="Outil">
+          <button class="tab" data-tool="brush" aria-pressed="false">Pinceau</button>
+          <button class="tab" data-tool="wand" aria-pressed="false">Baguette</button>
+          <button class="tab" data-tool="rect" aria-pressed="false">Cadre</button>
+          <button class="tab" data-tool="pick" aria-pressed="false">Pipette</button>
+        </div>
+        <div class="tabs small" id="actions" role="group" aria-label="Action">
+          <button class="tab" data-act="keep" aria-pressed="false">Garder</button>
+          <button class="tab" data-act="remove" aria-pressed="false">Retirer</button>
+        </div>
+        <div class="range" id="brush-row"><label for="brush">Taille du pinceau</label><input type="range" id="brush" min="4" max="200" step="2"><output id="brush-o"></output></div>
+        <div class="range" id="wand-row"><label for="wtol">Tolérance</label><input type="range" id="wtol" min="1" max="60"><output id="wtol-o"></output></div>
+        <p class="hint" style="margin:0" id="tool-hint"></p>
+        <button class="btn small" id="clear-hints" style="align-self:flex-start">Effacer les retouches</button>
+      </section>
+      <section class="section">
+        <h2>Bords</h2>
+        <label class="check"><input type="checkbox" id="fine"> Bords fins (cheveux, poils)</label>
+        <div class="range"><label for="shift">Rétrécir / élargir</label><input type="range" id="shift" min="-12" max="12"><output id="shift-o"></output></div>
+        <div class="range"><label for="feather">Adoucir</label><input type="range" id="feather" min="0" max="20"><output id="feather-o"></output></div>
+        <label class="check"><input type="checkbox" id="islands"> Retirer les petites taches</label>
+        <label class="check"><input type="checkbox" id="single"> Garder un seul sujet</label>
+        <label class="check"><input type="checkbox" id="holes"> Boucher les trous</label>
+        <label class="check"><input type="checkbox" id="decont"> Corriger le liseré de couleur du fond</label>
+      </section>
+      <section class="section">
+        <h2>Nouveau fond</h2>
+        <div class="tabs small" id="bgs" role="group" aria-label="Fond">
+          <button class="tab" data-bg="none" aria-pressed="false">Transparent</button>
+          <button class="tab" data-bg="color" aria-pressed="false">Couleur</button>
+          <button class="tab" data-bg="gradient" aria-pressed="false">Dégradé</button>
+          <button class="tab" data-bg="blur" aria-pressed="false">Flou</button>
+          <button class="tab" data-bg="gray" aria-pressed="false">Noir et blanc</button>
+          <button class="tab" data-bg="image" aria-pressed="false">Image</button>
+        </div>
+        <div class="row" id="bg-colors"><label class="color"><input type="color" id="bgc1"> <span id="bgc1-l">Couleur</span></label><label class="color" id="bgc2-w"><input type="color" id="bgc2"> Couleur 2</label></div>
+        <div class="swatches" id="bg-presets"></div>
+        <div class="range" id="blur-row"><label for="blur">Intensité du flou</label><input type="range" id="blur" min="1" max="100"><output id="blur-o"></output></div>
+        <div class="row" id="bgimg-row"><button class="btn small" id="bgimg-btn">Choisir l’image de fond</button><span class="hint" id="bgimg-name"></span></div>
+        <label class="check"><input type="checkbox" id="shadow"> Ombre portée</label>
+        <div class="range" id="shadow-row"><label for="shadowk">Intensité de l’ombre</label><input type="range" id="shadowk" min="5" max="100"><output id="shadowk-o"></output></div>
+        <label class="check"><input type="checkbox" id="outline"> Contour autocollant</label>
+        <div class="row" id="outline-row"><label class="color"><input type="color" id="outc"> Couleur</label><div class="range" style="flex:1;min-width:14em"><label for="outw">Épaisseur</label><input type="range" id="outw" min="1" max="40"><output id="outw-o"></output></div></div>
+      </section>
+      <section class="section">
+        <h2>Cadrage</h2>
+        <div class="fields">
+          <label class="f"><span>Format</span>
+            <select id="format">
+              <option value="image">Image entière</option>
+              <option value="sujet">Ajusté au sujet</option>
+              <option value="1:1">Carré 1:1 (boutique, profil)</option>
+              <option value="4:5">Portrait 4:5</option>
+              <option value="9:16">Story 9:16</option>
+              <option value="16:9">Paysage 16:9</option>
+              <option value="3:2">Photo 3:2</option>
+            </select></label>
+          <label class="f"><span>Taille maximale</span>
+            <select id="maxsize"><option value="0">Taille d’origine</option><option value="4096">4096 px</option><option value="2048">2048 px</option><option value="1080">1080 px</option><option value="512">512 px (icône, sticker)</option></select></label>
+        </div>
+        <div class="range" id="margin-row"><label for="margin">Marge</label><input type="range" id="margin" min="0" max="50"><output id="margin-o"></output></div>
+      </section>
+      <section class="section">
+        <h2>Enregistrer</h2>
+        <div class="final"><canvas id="final" aria-label="Aperçu de l’image enregistrée"></canvas></div>
+        <div class="row">
+          <label class="f" style="flex:1;min-width:8em"><span>Format du fichier</span>
+            <select id="fmt"><option value="image/png">PNG (transparence)</option><option value="image/webp">WEBP (transparence, plus léger)</option><option value="image/jpeg">JPEG (fond blanc si transparent)</option><option value="mask">Masque noir et blanc (PNG)</option></select></label>
+        </div>
+        <div class="row">
+          <button class="btn primary" id="dl">Télécharger</button>
+          <button class="btn" id="copy">Copier l’image</button>
+          <button class="btn" id="zip" hidden>Tout détourer (ZIP)</button>
+        </div>
+        <div class="progress" id="zip-progress" hidden><i></i></div>
+        <p class="hint" style="margin:0" id="out-facts"></p>
+        <p class="hint" style="margin:0">Les informations cachées (position GPS, appareil, date) ne sont pas recopiées dans le fichier enregistré.</p>
+        <div class="toast" id="toast" role="status"></div>
+      </section>
+    </aside>
+  </div>
+
+  <!-- ===================== VIDÉO ===================== -->
+  <div class="grid" data-pane="video" hidden>
+    <div class="panel glass">
+      <section class="section">
+        <h2>Vidéo</h2>
+        <label class="drop big" id="vvide" for="vfile">
+          <strong>Glisse une vidéo ici</strong>
+          <span class="hint">ou clique pour la choisir. MP4, WEBM, MOV selon le navigateur. Idéal : fond vert, bleu ou uni, ou caméra fixe.</span>
+        </label>
+        <div class="row" id="vsources" style="justify-content:center">
+          <button class="btn small" id="vcam">Utiliser la caméra</button>
+          <button class="btn small" id="vdemo">Essayer avec l’exemple</button>
+        </div>
+        <input type="file" id="vfile" accept="video/*" hidden>
+        <input type="file" id="vbgfile" accept="image/*" hidden>
+        <video id="video" playsinline muted hidden></video>
+        <div class="scene" id="vscene" hidden>
+          <div class="tabs small" id="vviews" role="group" aria-label="Affichage">
+            <button class="tab" data-vview="result" aria-pressed="false">Résultat</button>
+            <button class="tab" data-vview="mask" aria-pressed="false">Masque</button>
+            <button class="tab" data-vview="source" aria-pressed="false">Original</button>
+          </div>
+          <div class="stagebox" id="vstage"><canvas id="vcv" aria-label="Aperçu de la vidéo détourée"></canvas></div>
+          <div class="vctl" id="vctl">
+            <button class="btn small" id="vplay">Lecture</button>
+            <input type="range" id="vseek" min="0" max="1000" value="0" aria-label="Position dans la vidéo">
+            <output id="vtime">0:00</output>
+          </div>
+          <div class="bar">
+            <div class="grp">
+              <label class="check"><input type="checkbox" id="vsound"> Son</label>
+            </div>
+            <div class="grp">
+              <span class="hint" id="vfacts"></span>
+              <label class="btn small" for="vfile" style="cursor:pointer">Changer de vidéo</label>
+            </div>
+          </div>
+          <div class="note bad" id="verr" hidden></div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="panel proof glass" aria-label="Réglages vidéo">
+      <section class="section">
+        <h2>Méthode</h2>
+        <div class="tabs small" id="vmethods" role="group" aria-label="Méthode">
+          <button class="tab" data-vmethod="couleur" aria-pressed="false">Fond vert ou uni</button>
+          <button class="tab" data-vmethod="fixe" aria-pressed="false">Caméra fixe</button>
+        </div>
+        <p class="hint" style="margin:0" id="vmethod-hint"></p>
+        <div id="vm-couleur" class="stack">
+          <div class="row"><span class="keysw" id="vkeysw"></span><button class="btn small" id="vkey-auto">Couleur du bord</button><label class="color"><input type="color" id="vkey"> Choisir</label></div>
+          <div class="range"><label for="vtol">Tolérance</label><input type="range" id="vtol" min="0" max="100"><output id="vtol-o"></output></div>
+          <div class="range"><label for="vsoft">Douceur</label><input type="range" id="vsoft" min="0" max="100"><output id="vsoft-o"></output></div>
+          <div class="range"><label for="vspill">Anti-reflet</label><input type="range" id="vspill" min="0" max="100"><output id="vspill-o"></output></div>
+        </div>
+        <div id="vm-fixe" class="stack">
+          <div class="row"><button class="btn small" id="vplate-auto">Calculer le fond automatiquement</button><button class="btn small" id="vplate-now">Prendre cette image comme fond</button></div>
+          <p class="hint" style="margin:0" id="vplate-state"></p>
+          <div class="range"><label for="vdtol">Tolérance</label><input type="range" id="vdtol" min="0" max="100"><output id="vdtol-o"></output></div>
+          <div class="range"><label for="vdsoft">Douceur</label><input type="range" id="vdsoft" min="0" max="100"><output id="vdsoft-o"></output></div>
+        </div>
+        <label class="check"><input type="checkbox" id="vgarbage"> Ne garder que l’intérieur d’un cadre</label>
+        <p class="hint" style="margin:0" id="vgarbage-hint" hidden>Trace le cadre sur l’aperçu : tout ce qui est dehors est retiré (micro, bords du fond vert…).</p>
+      </section>
+      <section class="section">
+        <h2>Bords</h2>
+        <div class="range"><label for="vclean">Nettoyage</label><input type="range" id="vclean" min="0" max="4"><output id="vclean-o"></output></div>
+        <div class="range"><label for="vshift">Rétrécir / élargir</label><input type="range" id="vshift" min="-6" max="6"><output id="vshift-o"></output></div>
+        <div class="range"><label for="vfeather">Adoucir</label><input type="range" id="vfeather" min="0" max="10"><output id="vfeather-o"></output></div>
+      </section>
+      <section class="section">
+        <h2>Nouveau fond</h2>
+        <div class="tabs small" id="vbgs" role="group" aria-label="Fond">
+          <button class="tab" data-vbg="none" aria-pressed="false">Transparent</button>
+          <button class="tab" data-vbg="color" aria-pressed="false">Couleur</button>
+          <button class="tab" data-vbg="blur" aria-pressed="false">Flou</button>
+          <button class="tab" data-vbg="gray" aria-pressed="false">Noir et blanc</button>
+          <button class="tab" data-vbg="image" aria-pressed="false">Image</button>
+        </div>
+        <div class="row" id="vbg-color-row"><label class="color"><input type="color" id="vbgc"> Couleur</label></div>
+        <div class="range" id="vblur-row"><label for="vblur">Intensité du flou</label><input type="range" id="vblur" min="1" max="100"><output id="vblur-o"></output></div>
+        <div class="row" id="vbgimg-row"><button class="btn small" id="vbgimg-btn">Choisir l’image de fond</button><span class="hint" id="vbgimg-name"></span></div>
+      </section>
+      <section class="section">
+        <h2>Enregistrer</h2>
+        <div class="fields">
+          <label class="f"><span>Début (s)</span><input type="number" id="vin" min="0" step="0.1" value="0"></label>
+          <label class="f"><span>Fin (s)</span><input type="number" id="vout" min="0" step="0.1"></label>
+          <label class="f"><span>Taille</span>
+            <select id="vsize"><option value="1920">1920 px</option><option value="1280">1280 px</option><option value="854">854 px</option><option value="480">480 px</option></select></label>
+          <label class="f"><span>Images par seconde (PNG)</span>
+            <select id="vfps"><option value="30">30</option><option value="25">25</option><option value="24">24</option><option value="15">15</option><option value="10">10</option></select></label>
+        </div>
+        <div class="row">
+          <button class="btn primary" id="vrec">Enregistrer la vidéo</button>
+          <button class="btn" id="vpng">Images PNG (ZIP)</button>
+          <button class="btn" id="vframe">Image actuelle</button>
+        </div>
+        <div class="progress" id="vprogress" hidden><i></i></div>
+        <button class="btn small" id="vstop" hidden style="align-self:flex-start">Arrêter</button>
+        <p class="hint" style="margin:0" id="vout-hint"></p>
+        <div class="toast" id="vtoast" role="status"></div>
+      </section>
+    </aside>
+  </div>
+
+  <section class="panel glass about" id="a-propos" aria-labelledby="about-title">
+    <div class="about-head">
+      <h2 id="about-title">À propos</h2>
+      <p class="about-lede"><b>LibreDetour</b> enlève le fond de tes photos et de tes vidéos : transforme un JPEG en PNG transparent, remplace le fond par une couleur, un dégradé, un flou ou une autre image, et prépare des visuels prêts à publier.</p>
+    </div>
+    <div class="about-cols">
+      <div>
+        <h3>Photos</h3>
+        <ul>
+          <li><b>Automatique</b> trouve le sujet seul ; <b>Cadre</b> marche mieux quand tu traces un rectangle autour du sujet.</li>
+          <li><b>Fond uni</b> retire une couleur (fond blanc, fond vert) ; <b>Photo du fond</b> compare avec une photo prise au même endroit sans le sujet.</li>
+          <li>Corrige à la main avec le pinceau ou la baguette : <b>Garder</b> ou <b>Retirer</b>. Plusieurs photos ? Tout est détouré d’un coup dans un ZIP.</li>
+        </ul>
+        <h3>Vidéos</h3>
+        <ul>
+          <li>Fond vert, bleu ou uni : touche le fond sur l’aperçu pour choisir sa couleur.</li>
+          <li>Caméra fixe : le fond est calculé à partir de la vidéo, sans fond vert.</li>
+          <li>Enregistre une vidéo WEBM avec le nouveau fond, ou une suite d’images PNG transparentes pour un logiciel de montage.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Confidentialité</h3>
+        <p>Les photos et les vidéos sont traitées dans ton navigateur. Elles ne quittent jamais ton appareil, même pas pour un calcul.</p>
+        <h3>Conseils</h3>
+        <p>Un sujet bien éclairé, net et différent du fond donne les meilleurs résultats. Pour un objet sur une table, photographie-le sur une feuille blanche et utilise <b>Fond uni</b>.</p>
+        <p>Le PNG et le WEBP gardent la transparence ; le JPEG non. Une vidéo WEBM transparente dépend du navigateur : pour être sûr, choisis les images PNG.</p>
+      </div>
+    </div>
+    <footer class="about-foot">
+      <p class="credit">Imaginé par <b>jeremdevgit</b> · <a href="https://github.com/jeremdevgit" rel="noopener">ses autres logiciels</a></p>
+      <p class="hint">Fait partie de la Suite Libre.</p>
+    </footer>
+  </section>
+</div>
+
+<script src="textes.js"></script>
+<script src="langue.js"></script>
+<script src="algos.js"></script>
+<script src="photo.js"></script>
+<script src="video.js"></script>
+
+</body>
+</html>

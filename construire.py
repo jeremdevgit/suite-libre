@@ -22,6 +22,7 @@ OUTILS = {
     "libreflou": "LibreFlou",
     "librenotes": "LibreNotes",
     "librepass": "LibrePass",
+    "libredetour": "LibreDetour",
 }
 
 
