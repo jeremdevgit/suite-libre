@@ -18,10 +18,9 @@ RACINE = pathlib.Path(__file__).resolve().parent
 OUTILS = {
     "librerr": "LibreRR",
     "libreconvert": "LibreConvert",
-    "libreimage": "LibreImage",
-    "libreflou": "LibreFlou",
     "librenotes": "LibreNotes",
     "librepass": "LibrePass",
+    "libremedias": "LibreMedias",
 }
 
 

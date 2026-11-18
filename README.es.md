@@ -2,7 +2,7 @@
 
 <h1 align="center">Suite Libre</h1>
 
-<p align="center"><b>Seis herramientas cotidianas en el navegador, sin cuenta ni rastreo: códigos QR, desenfoque, fotos, conversiones, notas, contraseñas.</b></p>
+<p align="center"><b>Cinco herramientas cotidianas en el navegador, sin cuenta ni rastreo: códigos QR, fotos y vídeos (retoque, recorte de fondo, desenfoque, tamaño, conversión), conversiones, notas, contraseñas.</b></p>
 
 <p align="center"><img src="https://img.shields.io/badge/%F0%9F%93%92%20Productivity%20%26%20data-Browser-1a9a6c?style=flat-square" alt="Productividad y datos"> <a href="https://github.com/jeremdevgit/suite-libre/releases"><img src="https://img.shields.io/github/v/release/jeremdevgit/suite-libre?include_prereleases&style=flat-square&label=version" alt="version"></a> <a href="LICENSE"><img src="https://img.shields.io/badge/license-GPL--3.0--or--later-555?style=flat-square" alt="GPL-3.0-or-later"></a></p>
 
@@ -30,14 +30,13 @@ Cada herramienta funciona **por completo en tu navegador**: nada se envía a un 
 | Herramienta | Para qué sirve |
 |---|---|
 | **LibreRR** | Códigos QR para enlaces, correo, texto, Wi-Fi, teléfono, SMS, tarjetas de contacto o lugares; colores, degradados, formas, logotipo; exporta PNG, SVG, JPEG o WEBP |
-| **LibreFlou** | Desenfoca, pixela o tapa caras, matrículas y documentos antes de compartir; se guarda a tamaño real **sin GPS ni datos ocultos** |
-| **LibreImage** | Reduce fotos (JPEG, WEBP, PNG), las redimensiona y **siempre elimina** ubicación, cámara y fecha; una a una o en ZIP |
+| **LibreMedias** | La herramienta de foto y vídeo todo en uno. **Retocar**: recortar, girar, enderezar, voltear, luz/contraste/color/nitidez, filtros, texto, biblioteca de pictogramas y tus propios logos, marca de agua, tamaño en píxeles. **Recortar fondo**: JPEG a PNG transparente, sujeto automático, marco, fondo liso o verde, pincel y varita, nuevo fondo, sombra, contorno de pegatina, lote en ZIP. **Desenfocar** caras, matrículas y documentos. **Aligerar y convertir** imágenes por lotes. **Vídeo**: fondo verde o cámara fija, recorte, tamaño en px, inicio y fin, WEBM/MP4, GIF animado o secuencia PNG/JPEG. Exporta a PNG, JPEG, WEBP, AVIF, GIF, BMP, TIFF, ICO, PDF; **siempre sin** ubicación, cámara ni fecha |
 | **LibreConvert** | Unidades, días entre fechas (con festivos franceses), zonas horarias, decimal/binario/octal/hexadecimal |
 | **LibreNotes** | Medias por asignatura y general con coeficientes (escala francesa 0–20), nota necesaria para un objetivo, exportación CSV |
 | **LibrePass** | Contraseñas realmente aleatorias o frases fáciles de recordar, y prueba de robustez de las tuyas |
 
 <p><img src="captures/en/librerr-pc.png" alt="LibreRR en un ordenador" width="72%"> <img src="captures/en/librerr-telephone.png" alt="LibreRR en un móvil" width="22%"></p>
-<p><img src="captures/en/libreflou-pc.png" alt="LibreFlou en un ordenador" width="72%"> <img src="captures/en/libreflou-telephone.png" alt="LibreFlou en un móvil" width="22%"></p>
+<p><img src="captures/en/libremedias-pc.png" alt="LibreMedias en un ordenador" width="72%"> <img src="captures/en/libremedias-telephone.png" alt="LibreMedias en un móvil" width="22%"></p>
 
 ## Usar
 
@@ -49,12 +48,12 @@ Cada herramienta funciona **por completo en tu navegador**: nada se envía a un 
 
 - **Nada sale de tu dispositivo**: sin servidor, cookies, estadísticas, ni fuentes o scripts de otros sitios.
 - Una **política de seguridad de contenido (CSP) estricta** en cada página bloquea cualquier conexión externa; en los archivos sin conexión cada script se autoriza por su **hash SHA-256**, así que un archivo modificado no se ejecuta.
-- LibrePass usa el generador criptográfico del navegador (`crypto.getRandomValues`) sin sesgo; LibreImage y LibreFlou generan imágenes sin metadatos.
+- LibrePass usa el generador criptográfico del navegador (`crypto.getRandomValues`) sin sesgo; LibreMedias genera imágenes sin metadatos.
 
 ## Compilar y alojar
 
 ```sh
-python3 construire.py      # Python 3.8+, sin dependencias → dist/ (6 archivos sin conexión + SHA256SUMS.txt)
+python3 construire.py      # Python 3.8+, sin dependencias → dist/ (5 archivos sin conexión + SHA256SUMS.txt)
 ```
 
 Las herramientas son páginas estáticas, así que sirve cualquier alojamiento; para GitHub Pages elige *Deploy from a branch → `main` / raíz*. Los textos están en el `textes.js` de cada carpeta, con el texto francés como clave.

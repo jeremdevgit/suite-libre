@@ -1,9 +1,15 @@
 /* SPDX-License-Identifier: GPL-3.0-or-later — Copyright (C) 2026 jeremdevgit — voir LICENSE */
 (function () {
+  // LibreMedias — onglet Flouter (ancien LibreFlou) : identifiants préfixés « f- »
+  const $ = (id) => document.getElementById("f-" + id);
+  let toastT = 0;
+  const toast = (t) => { const el = $("toast"); el.textContent = t; clearTimeout(toastT); toastT = setTimeout(() => (el.textContent = ""), 4000); };
+  const LM = (window.LM = window.LM || { hooks: {}, tabListeners: [] });
+  const visible = () => !document.querySelector('[data-pane="flou"]').hidden;
   enableDownloads();
   const cv = $("cv"), ctx = cv.getContext("2d");
-  const PREF = "libreflou-reglages-v1";
-  const P = Object.assign({ tool: "rect", effect: "flou", strength: 60, color: "#111111", brush: 48, outlines: true, fmt: "image/png" }, loadPref(PREF, {}));
+  const PREF = "libremedias-flou-v1";
+  const P = Object.assign({ tool: "rect", effect: "flou", strength: 60, color: "#111111", brush: 48, outlines: true, fmt: "png" }, loadPref(PREF, {}));
   const EFFETS = { flou: trad("Flou"), pixels: trad("Pixels"), masque: trad("Masque") };
   const FORMES = { rect: trad("Rectangle"), ellipse: trad("Ellipse"), brush: trad("Pinceau") };
   const AIDE = {
@@ -313,7 +319,7 @@
   $("undo").addEventListener("click", undo);
   $("redo").addEventListener("click", redo);
   document.addEventListener("keydown", (e) => {
-    if (!src || e.target.closest("input, textarea, select")) return;
+    if (!src || !visible() || e.target.closest("input, textarea, select")) return;
     const mod = e.metaKey || e.ctrlKey, k = e.key.toLowerCase();
     if (mod && k === "z") { e.preventDefault(); e.shiftKey ? redo() : undo(); }
     else if (mod && k === "y") { e.preventDefault(); redo(); }
@@ -347,7 +353,7 @@
       resetHistory();
     } catch (e) {
       URL.revokeObjectURL(url);
-      const msg = heic ? trad("Ce navigateur ne sait pas lire le HEIC. Ouvre LibreFlou dans Safari, ou règle l’iPhone sur « Le plus compatible » (Réglages › Appareil photo › Formats).") : trad("Ce fichier n’a pas pu être lu comme une image.");
+      const msg = heic ? trad("Ce navigateur ne sait pas lire le HEIC. Ouvre LibreMedias dans Safari, ou règle l’iPhone sur « Le plus compatible » (Réglages › Appareil photo › Formats).") : trad("Ce fichier n’a pas pu être lu comme une image.");
       if (src) { $("err").textContent = msg; $("err").hidden = false; } else toast(msg);
     }
   }
@@ -357,7 +363,9 @@
     ["dragleave", "drop"].forEach((ev) => dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.remove("over"); }));
     dz.addEventListener("drop", (e) => openFile(e.dataTransfer.files[0]));
   });
+  LM.hooks.flou = openFile;
   document.addEventListener("paste", (e) => {
+    if (!visible()) return;
     const item = [...(e.clipboardData?.items || [])].find((i) => i.type.startsWith("image/"));
     if (item) openFile(item.getAsFile());
   });
@@ -369,10 +377,16 @@
   $("dl").addEventListener("click", async () => {
     if (!src) return;
     if (!canSave()) { toast(trad("Le téléchargement n’est pas disponible ici : utilise Copier l’image.")); return; }
-    const blob = await toBlob(render(), P.fmt);
-    if (!blob) { toast(trad("L’image n’a pas pu être créée.")); return; }
-    const fname = name.replace(/\.[^.]+$/, "") + "-" + trad("floute") + "." + (EXT[blob.type] || "png");
-    try { const s = await saveFile(fname, blob); if (s === "saved") toast(trad("Image enregistrée.")); } catch (err) { toast(saveErrorText(err)); }
+    try {
+      const blob = await Formats.save(render(), P.fmt, 0.92, "#ffffff");
+      const fname = name.replace(/\.[^.]+$/, "") + "-" + trad("floute") + "." + Formats.ext(P.fmt);
+      const s = await saveFile(fname, blob); if (s === "saved") toast(trad("Image enregistrée."));
+    } catch (err) { toast(err && err.code === "format" ? trad("Ce navigateur ne sait pas créer ce format : choisis-en un autre.") : saveErrorText(err)); }
+  });
+  $("to-retouche").addEventListener("click", async () => {
+    if (!src || !LM.hooks.retouche) return;
+    const b = await toBlob(render(), "image/png");
+    LM.show("retouche"); LM.hooks.retouche(new File([b], name.replace(/\.[^.]+$/, "") + ".png", { type: "image/png" }));
   });
   $("copy").addEventListener("click", async () => {
     if (!src) return;
@@ -381,6 +395,8 @@
       toast(trad("Image copiée dans le presse-papiers."));
     } catch (e) { toast(trad("La copie d’image est bloquée par ce navigateur : utilise Télécharger.")); }
   });
+  if (!Formats.byId(P.fmt) || P.fmt.includes("/")) P.fmt = "png";
+  Formats.fill($("fmt"), null, P.fmt);
   onSaveReady(syncPanel);
 
   // ---------- Exemple de départ ----------
